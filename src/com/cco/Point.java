@@ -1,11 +1,13 @@
 package com.cco;
 
+/*This class represents a Point within the coordinate space*/
+
 public class Point {
 
     private static long ID;
-    long id;
-    final double x;
-    final double y;
+    final long id; //id of the point
+    private double x; //x coordinate of the point
+    private double y; //y coordinate of the point
 
     public Point(double x, double y) {
         this.x = x;
