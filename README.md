@@ -34,7 +34,8 @@ The location, orientation, and length of each segment is defined by the cartesia
 
 Due to the binary mode of branching, the total number of segments can be calculated using:  
 
-$$N_{tot} = 2\cdot N_{term} -1$$
+$$N_{tot} = 2\cdot N_{term} -1$$  
+
 
 ### Perfusion area:
 The area of tissue to be perfused into may be 2D or 3D, and could theoretically take on one of many shapes. It is initially considered as a 2D circular area for simplicity. This circular area is described using the perfusion area $A_{perf}$ and the perfusion radius $r_{perf}$.
@@ -48,7 +49,8 @@ The main feeding artery, represented by the root segment, is perfused at a press
 
 1. The bifurcation rule:  
 
-$$r^\gamma(i) = (r(D^l_i))^\gamma+(r(D^r_i))^\gamma$$
+$$r^\gamma(i) = (r(D^l_i))^\gamma+(r(D^r_i))^\gamma$$  
+
    Where:
    - $r(i)$ represents the radius of the (parent) segment $i$.
    - $\gamma$ is the bifurcation exponent.
@@ -92,13 +94,15 @@ All individual perfusion areas should be supplied with equal flows at equal pres
 - The flow:  
 	The flow $Q_i$ through a segment is proportional to  the number of individual distal perfusion areas connected to it:  
 
-$$Q_i = NDIST_i \cdot Q_{term}$$
-	Note: $NDIST_i$ = 1 for terminal segments by definition.
+$$Q_i = NDIST_i \cdot Q_{term}$$  
+
+Note: $NDIST_i$ = 1 for terminal segments by definition.
  
 
 5. Poiseuille's law:  
 
-$$Q = \frac{\pi \Delta Pr^4}{8\eta l}$$
+$$Q = \frac{\pi \Delta Pr^4}{8\eta l}$$  
+
    Where:
    - $Q$ is the flow rate.
    - $\Delta P$ is the drop in pressure.
@@ -138,13 +142,17 @@ This approach is relatively more complex and involves more steps, but is able to
 3. Using the length of the resulting segment, calculate the radius such that the resistance yields the flow $Q_{term}$.
 4. $k_{term}$, $k_{tot}$ are set to 1.
 ##### Stretching the supporting circle:
-5. The supporting circle is increased to accommodate one additional terminal perfusion area:
-$$\pi\cdot r_{supp}^2 = (k_{tot} + 1)\frac{A_{perf}}{N_{term}}$$
+5. The supporting circle is increased to accommodate one additional terminal perfusion area:  
+
+$$\pi\cdot r_{supp}^2 = (k_{tot} + 1)\frac{A_{perf}}{N_{term}}$$  
+
 6. The segment coordinates are stretched to meet the increase in the supporting circle.
 7. The segment radii are increased to meet the  increase in segment length in order to correct the total tree resistance.
 ##### Adding a terminal segment:
-8. Initialize the threshold distance according to:
-$$d_{thresh} = \sqrt{\frac{\pi \cdot r_{supp}^2}{k_{term}}}$$
+8. Initialize the threshold distance according to:  
+
+$$d_{thresh} = \sqrt{\frac{\pi \cdot r_{supp}^2}{k_{term}}}$$  
+
 9. A random location is selected for the distal end of the new segment within the supporting circle, with a uniform distribution.
 10. Compute the distance from the new location to each segment. First compute the projection of the new location on the given segment:  
 
