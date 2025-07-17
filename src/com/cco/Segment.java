@@ -4,7 +4,7 @@ package com.cco;
 *
 * */
 
-public class Segment {
+class Segment {
 
     private static long INDEX = 1;
     final long index; //index of the segment

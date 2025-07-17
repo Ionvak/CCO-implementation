@@ -2,7 +2,7 @@ package com.cco;
 
 /*This class represents a Point within the coordinate space*/
 
-public class Point {
+class Point {
 
     private static long ID;
     final long id; //id of the point
