@@ -1,5 +1,7 @@
 package com.cco;
 
+import java.lang.Math;
+
 /*This class represents a segment within the tree
 *
 * */
@@ -30,14 +32,12 @@ class Segment {
 
     //Get the total Blood volume within a given segment
     public static double getVolume(double length, double radius) {
-
-        return 0;
+        return Math.PI*Math.pow(radius, 2)*length;
     }
 
     //Get the distance between two points (the length of the segment)
     public static double getDistance(Point proximal, Point distal) {
-
-        return 0;
+        return Math.sqrt( Math.pow(proximal.getX - distal.getX, 2) + Math.pow(proximal.getY - distal.getY, 2) );
     }
 
     //Initialize a segment using the desired radius
