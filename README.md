@@ -156,18 +156,19 @@ $$d_{thresh} = \sqrt{\frac{\pi \cdot r_{supp}^2}{k_{term}}}$$
 9. A random location is selected for the distal end of the new segment within the supporting circle, with a uniform distribution.
 10. Compute the distance from the new location to each segment. First compute the projection of the new location on the given segment:  
 
-$$d_{proj}(x,y,j) = \left( \begin{array}{cc} x(B_j) - x(j) \\ y(B_j) - y(j) \end{array} \right) \cdot \left( \begin{array}{cc} x - x(j) \\ y - y(j) \end{array} \right) \cdot l(j)^{-2}$$  
+$$d_{proj}(x,y,j) = \left( \begin{array}{cc} x(B_j) - x(j) \\  
+y(B_j) - y(j) \end{array} \right) \cdot \left( \begin{array}{cc} x - x(j) \\  
+y - y(j) \end{array} \right) \cdot l(j)^{-2}$$  
 
 where:
    - "$\cdot$" denotes the dot product.
 	If $0\leq d_{proj} \leq 1$ , the projection lies along the segment j. If the projection of the new location lies along the already existing segment $j$, calculate the orthogonal distance:  
 
-$$d_{ortho}(x,y,j) = 
-   \left|\left( \begin{array}{cc} 		    - y(B_j) + y(j) \\ x(B_j) - x(j) \end{array} \right) \cdot \left( \begin{array}{cc} x - x(j) \\ y - y(j) \end{array}  \right)\right| \cdot l(j)^{-1}$$  
+ 
 
 Else, calculate the distance between the randomly selected point, and one of the endpoints of the already existing segment $j$:  
 
-$$d_{end}(x,y,j) = Min\{ \sqrt{(x - x(j))^2+(y-y(j))^2}\text{ }, \sqrt{(x - x(B_j))^2+(y-y(B_j))^2} \}$$  
+$$d_{end}(x,y,j) = Min( \sqrt{(x - x(j))^2+(y-y(j))^2}\text{ }, \sqrt{(x - x(B_j))^2+(y-y(B_j))^2} )$$  
 
 11. If the distance thus obtained exceeds the threshold distance $d_{thresh}$, the point is selected to become the distal end of the new segment to be added. Else, the current selection is discarded and the random selection (tossing) is repeated. 
 12. If the tossing fails $N_{toss}$ many times, reduce the threshold distance by 10% and try again. Repeat this until a point is selected. 
