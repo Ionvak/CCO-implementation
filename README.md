@@ -1,16 +1,16 @@
 2025-07-01
 19:17
 
-==index:==
-==1. [[#Abstract]]==
-==2. [[#Model description]]==
-==2.1 [[#Segments]]==
-==2.2 [[#Perfusion area]]==
-==2.3 [[#Boundary conditions]]==
-==3. [[#Optimization criteria/Target functions/Model requirements]]==
-==4. [[#Algorithm description]]==
-==4.1 [[#Algorithm 1 - comparison of entire trees]]==
-==4.2 [[#Algorithm 2 - step-wise optimization and comparison of individual bifurcations]]==
+index:
+1. Abstract
+2. Model description 
+   1. Segments
+   2. Perfusion area
+   3. Boundary conditions
+3. Optimization criteria/Target functions/Model requirements
+4. Algorithm description 
+   1. Algorithm 1 - comparison of entire trees
+   2. Algorithm 2 - step-wise optimization and comparison of individual bifurcations
 
 ---
 
@@ -111,8 +111,6 @@ This approach is relatively more complex and involves more steps, but is able to
 - $i_{old}$ is the index of the parent segment of $i_{conn}$ prior to adding the bifurcation.
 - $i_{new}$ is the index of the new segment that we wish to add.
 - $i_{bif}$ is the index of the segment that acts as the parent segment to both $i_{new}$ and $i_{conn}$ after adding the bifurcation. It connects the proximal end of $i_{new}$ and $i_{conn}$ to the distal end of $i_{old}$ It is originally the proximal half of the segment $i_{conn}$ prior to adding the bifurcation.
-  ![[Pasted image 20250710154734.png]]
-	Adding a terminal segment using a bifurcation. A pre-existing tree of $k_{term}$ segments is assumed to be balanced and scaled. Segment $i_{conn}$ is the selected site for the connection of the new terminal segment $i_{new}$. $i_{conn}$ is shortened (hollow section) and the new bifurcation $i_{bif}$ is inserted (solid section), and its coordinates are geometrically optimized (dashed section).
 
 ##### Initializing the tree:
 1. Initialize the supporting circle to be the size of the perfusion area of a single terminal segment ($\pi\cdot r_{supp}^2 = \frac{A_{perf}}{N_{term}}$).
