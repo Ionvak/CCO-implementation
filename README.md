@@ -164,7 +164,10 @@ where:
    - "$\cdot$" denotes the dot product.
 	If $0\leq d_{proj} \leq 1$ , the projection lies along the segment j. If the projection of the new location lies along the already existing segment $j$, calculate the orthogonal distance:  
 
- 
+$$d_{ortho}(x,y,j) =
+\left|\left( \begin{array}{cc} 		    - y(B_j) + y(j) \\  
+x(B_j) - x(j) \end{array} \right) \cdot \left( \begin{array}{cc} x - x(j) \\  
+y - y(j) \end{array}  \right)\right| \cdot l(j)^{-1}$$  
 
 Else, calculate the distance between the randomly selected point, and one of the endpoints of the already existing segment $j$:  
 
