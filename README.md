@@ -32,7 +32,8 @@ Additionally, each segment has it's own length $l(i)$ and it's own radius $r(i)$
 
 The location, orientation, and length of each segment is defined by the cartesian coordinates $x(i)$, $y(i)$ (in the case of 2D) of its distal end (the point just before bifurcation), together with the corresponding values of its parent segment (the only exception is the root segment).
 
-Due to the binary mode of branching, the total number of segments can be calculated using:
+Due to the binary mode of branching, the total number of segments can be calculated using:  
+
 $$N_{tot} = 2\cdot N_{term} -1$$
 
 ### Perfusion area:
@@ -45,16 +46,20 @@ The main feeding artery, represented by the root segment, is perfused at a press
 
 ## Optimization criteria/Target functions/Model requirements:
 
-1. The bifurcation rule:
+1. The bifurcation rule:  
+
 $$r^\gamma(i) = (r(D^l_i))^\gamma+(r(D^r_i))^\gamma$$
    Where:
    - $r(i)$ represents the radius of the (parent) segment $i$.
    - $\gamma$ is the bifurcation exponent.
 
 
-2. Bifurcation ratios:
-$$ \beta^l(i) = \frac{r(D_i^l)}{r(i)}$$ 
-$$\beta^r(i) = \frac{r(D_i^r)}{r(i)}$$
+2. Bifurcation ratios:  
+
+$$ \beta^l(i) = \frac{r(D_i^l)}{r(i)}$$  
+
+$$\beta^r(i) = \frac{r(D_i^r)}{r(i)}$$  
+
    Where:
    - $r(i)$ represents the radius of the (parent) segment $i$.
    - $\beta^l(i)$ is the left bifurcation ratio.
@@ -64,28 +69,35 @@ $$\beta^r(i) = \frac{r(D_i^r)}{r(i)}$$
 
 
 3. Total blood volume:
-   The total blood volume within the tree needs to be minimized:
-$$T = \Sigma_{\forall i}l(i)\pi r(i)^2$$
+   The total blood volume within the tree needs to be minimized:  
+
+$$T = \Sigma_{\forall i}l(i)\pi r(i)^2$$  
+
    Where:
    - T is the total blood volume within the tree.
    - $l(i)$ is the length of the segment $i$.
    - $r(i)$ is the radius of the segment $i$.
 
 4. Perfusion area:
-   The total perfusion flow should be finally distributed evenly over the perfusion area:
-$$Q_i = \frac{Q_{perf}}{N_{term}}$$
-	All individual perfusion areas should be supplied with equal flows at equal pressure:
+   The total perfusion flow should be finally distributed evenly over the perfusion area:  
+
+$$Q_i = \frac{Q_{perf}}{N_{term}}$$  
+
+All individual perfusion areas should be supplied with equal flows at equal pressure:
    
-	The pressure drop:
-	The drop in pressure along the path from the root to any of the terminal segments should be the same.
-	
-	The flow:
-	The flow $Q_i$ through a segment is proportional to  the number of individual distal perfusion areas connected to it:
+- The pressure drop:  
+
+	The drop in pressure along the path from the root to any of the terminal segments should be the same.  
+
+- The flow:  
+	The flow $Q_i$ through a segment is proportional to  the number of individual distal perfusion areas connected to it:  
+
 $$Q_i = NDIST_i \cdot Q_{term}$$
 	Note: $NDIST_i$ = 1 for terminal segments by definition.
  
 
-5. Poiseuille's law:
+5. Poiseuille's law:  
+
 $$Q = \frac{\pi \Delta Pr^4}{8\eta l}$$
    Where:
    - $Q$ is the flow rate.
@@ -134,15 +146,21 @@ $$\pi\cdot r_{supp}^2 = (k_{tot} + 1)\frac{A_{perf}}{N_{term}}$$
 8. Initialize the threshold distance according to:
 $$d_{thresh} = \sqrt{\frac{\pi \cdot r_{supp}^2}{k_{term}}}$$
 9. A random location is selected for the distal end of the new segment within the supporting circle, with a uniform distribution.
-10. Compute the distance from the new location to each segment. First compute the projection of the new location on the given segment:
-$$d_{proj}(x,y,j) = \left( \begin{array}{cc} x(B_j) - x(j) \\ y(B_j) - y(j) \end{array} \right) \cdot \left( \begin{array}{cc} x - x(j) \\ y - y(j) \end{array} \right) \cdot l(j)^{-2}$$
-	where:
+10. Compute the distance from the new location to each segment. First compute the projection of the new location on the given segment:  
+
+$$d_{proj}(x,y,j) = \left( \begin{array}{cc} x(B_j) - x(j) \\ y(B_j) - y(j) \end{array} \right) \cdot \left( \begin{array}{cc} x - x(j) \\ y - y(j) \end{array} \right) \cdot l(j)^{-2}$$  
+
+where:
    - "$\cdot$" denotes the dot product.
-	If $0\leq d_{proj} \leq 1$ , the projection lies along the segment j. If the projection of the new location lies along the already existing segment $j$, calculate the orthogonal distance:
+	If $0\leq d_{proj} \leq 1$ , the projection lies along the segment j. If the projection of the new location lies along the already existing segment $j$, calculate the orthogonal distance:  
+
 $$d_{ortho}(x,y,j) = 
-   \left|\left( \begin{array}{cc} 		    - y(B_j) + y(j) \\ x(B_j) - x(j) \end{array} \right) \cdot \left( \begin{array}{cc} x - x(j) \\ y - y(j) \end{array}  \right)\right| \cdot l(j)^{-1}$$
-    Else, calculate the distance between the randomly selected point, and one of the endpoints of the already existing segment $j$:
-$$d_{end}(x,y,j) = Min\{ \sqrt{(x - x(j))^2+(y-y(j))^2}\text{ }, \sqrt{(x - x(B_j))^2+(y-y(B_j))^2} \}$$
+   \left|\left( \begin{array}{cc} 		    - y(B_j) + y(j) \\ x(B_j) - x(j) \end{array} \right) \cdot \left( \begin{array}{cc} x - x(j) \\ y - y(j) \end{array}  \right)\right| \cdot l(j)^{-1}$$  
+
+Else, calculate the distance between the randomly selected point, and one of the endpoints of the already existing segment $j$:  
+
+$$d_{end}(x,y,j) = Min\{ \sqrt{(x - x(j))^2+(y-y(j))^2}\text{ }, \sqrt{(x - x(B_j))^2+(y-y(B_j))^2} \}$$  
+
 11. If the distance thus obtained exceeds the threshold distance $d_{thresh}$, the point is selected to become the distal end of the new segment to be added. Else, the current selection is discarded and the random selection (tossing) is repeated. 
 12. If the tossing fails $N_{toss}$ many times, reduce the threshold distance by 10% and try again. Repeat this until a point is selected. 
 13. Choose one of the existing segments from among the relevant bifurcation candidates that were not already chosen as $i_{conn}$ in the current iteration, and and let it be $i_{conn}$.
