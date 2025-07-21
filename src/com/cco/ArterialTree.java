@@ -4,7 +4,9 @@ package com.cco;
  *building and interacting with the tree.
  * */
 
-public class Tree {
+import java.util.HashMap;
+
+public class ArterialTree extends HashMap<Long, Segment> {
 
     private static double viscosity;
     private static double distalPressure;

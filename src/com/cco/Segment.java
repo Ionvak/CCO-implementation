@@ -37,7 +37,7 @@ class Segment {
 
     //Get the distance between two points (the length of the segment)
     public static double getDistance(Point proximal, Point distal) {
-        return Math.sqrt( Math.pow(proximal.getX - distal.getX, 2) + Math.pow(proximal.getY - distal.getY, 2) );
+        return Math.sqrt( Math.pow(proximal.getX() - distal.getX(), 2) + Math.pow(proximal.getY() - distal.getY(), 2) );
     }
 
     //Initialize a segment using the desired radius
