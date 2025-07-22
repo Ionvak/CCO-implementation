@@ -18,20 +18,18 @@ class Segment {
     double length; //length of the segment
     double radius; // radius of the segment
 
-    //Get the flow based on the radius
-    public static double getFlow(double length, double radius) {
+    //Get the flow based on the radius (getFlow set to true), or the radius based on the flow (getRadius set to false).
+    public double getFlowOrRadius(double viscosity, double perfusionPressure, double distalPressure, double flow, boolean getFlow) {
+        double pressureDrop = 1; //Compute pressure drop in the segment or pass it in method.
 
-        return 0;
-    }
-
-    //Get the radius based on the flow
-    public static double getRadius(double length, double flow) {
-
-        return 0;
+        if(getFlow)
+            return (Math.PI*(pressureDrop)*Math.pow(radius,4))/(8*viscosity*length);
+        else
+            return Math.pow((8*flow*viscosity*length)/(Math.PI*(pressureDrop)), 1.0/4);
     }
 
     //Get the total Blood volume within a given segment
-    public static double getVolume(double length, double radius) {
+    public double getVolume(double length, double radius) {
         return Math.PI*Math.pow(radius, 2)*length;
     }
 
@@ -41,7 +39,7 @@ class Segment {
     }
 
     //Initialize a segment using the desired radius (usingRadius is set to true), or using the radius inferred from the flow (usingRadius is set to false)
-    public Segment(double proximalX, double proximalY,  double distalX, double distalY,  double radiusOrFlow, boolean usingRadius) {
+    public Segment(double proximalX, double proximalY,  double distalX, double distalY,  double radiusOrFlow, boolean usingRadius, double viscosity, double perfusionPressure, double distalPressure) {
         this.proximal = new Point(proximalX, proximalY);
         this.distal = new Point(distalX, distalY);
         this.index = INDEX++;
@@ -50,8 +48,7 @@ class Segment {
         if (usingRadius)
             this.radius = radiusOrFlow;
         else
-            this.radius = getRadius(this.length, radiusOrFlow);
-
+            this.radius = getFlowOrRadius(viscosity, perfusionPressure, distalPressure, radiusOrFlow, false);
     }
 
 }
