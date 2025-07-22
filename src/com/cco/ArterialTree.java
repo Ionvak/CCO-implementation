@@ -37,6 +37,46 @@ public class ArterialTree extends HashMap<Long, Segment> {
         }
     }
 
+    static private double thresholdDistance(){
+
+        return 0;
+    }
+
+    static private boolean supportCircleStretch(){
+
+        return false;
+    }
+
+    static private long addBifurcation(){
+
+        return 0;
+    }
+
+    static private double testBifurcation(){
+
+        return 0;
+    }
+
+    static private boolean findProjection(){
+
+        return false;
+    }
+
+    static private double orthogonalDistance(){
+
+        return 0;
+    }
+
+    static private double endpointDistance(){
+
+        return 0;
+    }
+
+    static private boolean rescaleTree(){
+
+        return false;
+    }
+
     public void displayTree(){
         //code for displaying the tree
     }
