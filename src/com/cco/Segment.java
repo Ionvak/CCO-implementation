@@ -18,14 +18,16 @@ class Segment {
     double length; //length of the segment
     double radius; // radius of the segment
 
-    //Get the flow based on the radius (getFlow set to true), or the radius based on the flow (getRadius set to false).
-    public double getFlowOrRadius(double viscosity, double perfusionPressure, double distalPressure, double flow, boolean getFlow) {
+    //Get the flow based on the radius.
+    public double getFlow(double viscosity, double perfusionPressure, double distalPressure) {
         double pressureDrop = 1; //Compute pressure drop in the segment or pass it in method.
+        return (Math.PI*(pressureDrop)*Math.pow(radius,4))/(8*viscosity*length);
+    }
 
-        if(getFlow)
-            return (Math.PI*(pressureDrop)*Math.pow(radius,4))/(8*viscosity*length);
-        else
-            return Math.pow((8*flow*viscosity*length)/(Math.PI*(pressureDrop)), 1.0/4);
+    //Get the radius based on the flow.
+    public double getRadius(double viscosity, double perfusionPressure, double distalPressure, double flow) {
+        double pressureDrop = 1; //Compute pressure drop in the segment or pass it in method.
+        return Math.pow((8*flow*viscosity*length)/(Math.PI*(pressureDrop)), 1.0/4);
     }
 
     //Get the total Blood volume within a given segment
@@ -38,17 +40,22 @@ class Segment {
         return Math.sqrt( Math.pow(proximal.x - distal.x, 2) + Math.pow(proximal.y - distal.y, 2) );
     }
 
-    //Initialize a segment using the desired radius (usingRadius is set to true), or using the radius inferred from the flow (usingRadius is set to false)
-    public Segment(double proximalX, double proximalY,  double distalX, double distalY,  double radiusOrFlow, boolean usingRadius, double viscosity, double perfusionPressure, double distalPressure) {
+    //Initialize a segment using the desired radius.
+    public Segment(double proximalX, double proximalY,  double distalX, double distalY,  double radius) {
         this.proximal = new Point(proximalX, proximalY);
         this.distal = new Point(distalX, distalY);
         this.index = INDEX++;
         this.length = getDistance(proximal, distal);
+        this.radius = radius;
+    }
 
-        if (usingRadius)
-            this.radius = radiusOrFlow;
-        else
-            this.radius = getFlowOrRadius(viscosity, perfusionPressure, distalPressure, radiusOrFlow, false);
+    //Initialize a segment using the radius inferred from the flow
+    public Segment(double proximalX, double proximalY,  double distalX, double distalY,  double flow, double viscosity, double perfusionPressure, double distalPressure) {
+        this.proximal = new Point(proximalX, proximalY);
+        this.distal = new Point(distalX, distalY);
+        this.index = INDEX++;
+        this.length = getDistance(proximal, distal);
+        this.radius = getRadius(viscosity, perfusionPressure, distalPressure, flow);
     }
 
 }
