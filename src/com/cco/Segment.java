@@ -19,7 +19,7 @@ class Segment {
     double radius; // radius of the segment
 
     //Get the flow based on the radius.
-    public double getFlow(double viscosity, double perfusionPressure, double distalPressure) {
+    public double findFlow(double viscosity, double perfusionPressure, double distalPressure) {
         double pressureDrop = 1; //Compute pressure drop in the segment or pass it in method.
         return (Math.PI*(pressureDrop)*Math.pow(radius,4))/(8*viscosity*length);
     }
@@ -31,12 +31,12 @@ class Segment {
     }
 
     //Get the total Blood volume within a given segment
-    public double getVolume() {
+    public double findVolume() {
         return Math.PI*Math.pow(radius, 2)*length;
     }
 
     //Get the distance between two points (the length of the segment)
-    public static double getDistance(Point proximal, Point distal) {
+    public double findLength() {
         return Math.sqrt( Math.pow(proximal.x - distal.x, 2) + Math.pow(proximal.y - distal.y, 2) );
     }
 
@@ -45,7 +45,7 @@ class Segment {
         this.proximal = new Point(proximalX, proximalY);
         this.distal = new Point(distalX, distalY);
         this.index = INDEX++;
-        this.length = getDistance(proximal, distal);
+        this.length = findLength();
         this.radius = radius;
     }
 
@@ -54,7 +54,7 @@ class Segment {
         this.proximal = new Point(proximalX, proximalY);
         this.distal = new Point(distalX, distalY);
         this.index = INDEX++;
-        this.length = getDistance(proximal, distal);
+        this.length = findLength();
         this.radius = findRadius(viscosity, perfusionPressure, distalPressure, flow);
     }
 
