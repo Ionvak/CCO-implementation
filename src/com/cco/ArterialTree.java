@@ -15,13 +15,13 @@ public class ArterialTree extends HashMap<Long, Segment> {
     final double perfusionPressure;
     final double perfusionFlow;
     final double perfusionArea;
-    final int N_terminal;
+    final int numTerminal;
 
     //Process variables for the tree
     final Segment root;
     private double supportRadius;
-    private int k_term;
-    private int k_tot;
+    private int kTerminal;
+    private int kTotal;
 
     //Initialize the tree given the constants passed to the constructor
     public ArterialTree(double viscosity, double bifurcationExponent, double distalPressure,  double perfusionPressure, double perfusionFlow, double perfusionArea, int N_terminal) {
@@ -31,12 +31,12 @@ public class ArterialTree extends HashMap<Long, Segment> {
         this.perfusionPressure = perfusionPressure;
         this.perfusionFlow = perfusionFlow;
         this.perfusionArea = perfusionArea;
-        this.N_terminal = N_terminal;
+        this.numTerminal = N_terminal;
 
         //Root proximal and distal should be randomly selected
         this.root = new Segment(0,0,1,1,perfusionFlow/N_terminal,viscosity,perfusionPressure,distalPressure);
 
-        while(k_term != N_terminal){
+        while(kTerminal != N_terminal){
             //code for building the tree
         }
     }
