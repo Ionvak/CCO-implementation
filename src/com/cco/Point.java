@@ -8,9 +8,13 @@ class Point {
     double x; //x coordinate of the point
     double y; //y coordinate of the point
 
-    public Point(double x, double y) {
+    Point(double x, double y) {
         id = ID++;
         this.x = x;
         this.y = y;
+    }
+
+    String string(){
+        return "(" + this.x + ", " + this.y + ")";
     }
 }
