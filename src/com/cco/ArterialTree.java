@@ -4,6 +4,10 @@ package com.cco;
  *building and interacting with the tree.
  * */
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class ArterialTree extends HashMap<Long, Segment> {
@@ -22,6 +26,7 @@ public class ArterialTree extends HashMap<Long, Segment> {
     private double supportRadius;
     private int kTerminal;
     private int kTotal;
+    private Point[] points;
 
     //Initialize the tree given the constants passed to the constructor
     public ArterialTree(double viscosity, double bifurcationExponent, double distalPressure,  double perfusionPressure, double perfusionFlow, double perfusionArea, int N_terminal) {
@@ -93,14 +98,24 @@ public class ArterialTree extends HashMap<Long, Segment> {
     }
 
     //Helper method for rescaling the tree
-    static private boolean rescaleTree(){
+    static private boolean rescale(){
 
         return false;
     }
 
-    //Used for getting a graphical representation of the tree
-    public void displayTree(){
-        //code for displaying the tree
+    //TODO: replace file name with path to allow for storage in other directories
+    //Used for exporting the tree to a csv file containing its points
+    public void export(String name){
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(name));
+            for(Point point : this.points){
+                bw.write(point.toString());
+                if(point != points[points.length-2]) bw.write(",");
+            }
+            bw.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
