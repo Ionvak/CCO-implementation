@@ -1,5 +1,6 @@
 import sys
 import csv
+import re
 import matplotlib.pyplot as plt
 
 class Point:
@@ -8,10 +9,15 @@ class Point:
         self.y = y
         
 def string_to_point(point_str):
-    point_obj = Point(int(point_str[1]), int(point_str[3]))
+    nums = re.findall(r"[-+]?\d*\.\d+|[-+]?\d+", point_str)
+    if len(nums) != 2:
+        raise ValueError(f"Invalid point format: {point_str}")
+    x = float(nums[0])
+    y = float(nums[1])
+    point_obj = Point(x, y)
     return point_obj
 
-    
+
 argv = sys.argv
 
 if(len(argv) != 3): 
@@ -24,7 +30,7 @@ ftree = open(tree_file, 'r')
 
 points = list()
 
-csv_reader = csv.reader(ftree, delimiter=",")
+csv_reader = csv.reader(ftree, delimiter=";")
 for row in csv_reader:
     for entry in row:
         points.append(string_to_point(entry))
@@ -35,7 +41,9 @@ for point in points:
     xpoints.append(point.x)
     ypoints.append(point.y)
 
+print("X coordinates: ")
 print(xpoints)
+print("Y coordinates: ")
 print(ypoints)
 
 plt.plot(xpoints,ypoints)
