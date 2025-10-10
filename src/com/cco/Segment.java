@@ -16,13 +16,14 @@ class Segment {
 
 
     //Get the total Blood volume within a given segment
-     double findVolume() {
+     static double findVolume(double radius, double length) {
         return Math.PI*Math.pow(radius, 2)*length;
     }
 
     //Get the length of the segment. It is the distance between its distal and proximal points.
-     double findLength() {
-        return Math.sqrt( Math.pow(proximal.x - distal.x, 2) + Math.pow(proximal.y - distal.y, 2) );
+     static double findLength(Point proximal, Point distal) {
+        return Math.sqrt( Math.pow(proximal.x - distal.x, 2) +
+               Math.pow(proximal.y - distal.y, 2) );
     }
 
     //Initialize a segment using the desired radius.
@@ -30,7 +31,7 @@ class Segment {
         this.proximal = new Point(proximal.x, proximal.y);
         this.distal = new Point(distal.x, distal.y);
         this.index = INDEX++;
-        this.length = findLength();
+        this.length = findLength(this.proximal, this.distal);
         this.radius = radius;
     }
 
