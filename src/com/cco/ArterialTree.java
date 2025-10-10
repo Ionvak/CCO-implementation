@@ -19,6 +19,12 @@ public class ArterialTree{
         this.isBuilt = false;
     }
 
+    public void buildTree(){
 
+    }
+
+    public double getTarget(){
+        return 0;
+    }
 
 }
