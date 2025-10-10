@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class ArterialTree{
 
-    private final HashMap<Integer, Segment> body;
+    private final HashMap<Long, Segment> body;
     private final TreeParams params;
     private boolean isBuilt;
     private double target;
@@ -16,7 +16,7 @@ public class ArterialTree{
     //Initialize the tree given the constants passed to the constructor
     public ArterialTree(TreeParams parameters) {
         this.params = parameters;
-        this.body = new HashMap<Integer, Segment>();
+        this.body = new HashMap<Long, Segment>();
         this.isBuilt = false;
         this.target = 0;
     }
@@ -29,7 +29,7 @@ public class ArterialTree{
         if(!this.isBuilt) return 0;
         double sum = 0;
         for(Segment s: body.values()) {
-            sum += s.findVolume();
+            sum += s.findVolume(s.radius, s.length);
         }
         return sum;
     }
@@ -53,13 +53,13 @@ public class ArterialTree{
                     Right Child:%d,
                     """;
             String result = String.format(
-                            s.proximal.toString(),
-                            s.distal.toString(),
-                            s.length,
-                            s.radius,
-                            s.parent.index,
-                            s.childLeft.index,
-                            s.childRight.index
+                    s.proximal.toString(),
+                    s.distal.toString(),
+                    s.length,
+                    s.radius,
+                    s.parent.index,
+                    s.childLeft.index,
+                    s.childRight.index
             );
 
             System.out.println(result);
