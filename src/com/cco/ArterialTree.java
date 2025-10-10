@@ -10,12 +10,13 @@ public class ArterialTree{
 
     final HashMap<Integer, Segment> body;
     final TreeParams params;
-
+    private boolean isBuilt;
 
     //Initialize the tree given the constants passed to the constructor
     public ArterialTree(TreeParams parameters) {
         this.params = parameters;
         this.body = new HashMap<Integer, Segment>();
+        this.isBuilt = false;
     }
 
 
