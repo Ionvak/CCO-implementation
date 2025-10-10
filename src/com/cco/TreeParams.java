@@ -7,7 +7,7 @@ public class TreeParams {
     final double perfPress;
     final double perfFlow;
     final double perfArea;
-    final int numTerminal;
+    final int nTerminal;
 
     public TreeParams(double viscosity, double bifExponent, double distalPress, double perfPress, double perfFlow, double perfArea, int numTerminal) {
         this.viscosity = viscosity;
@@ -16,6 +16,6 @@ public class TreeParams {
         this.perfPress = perfPress;
         this.perfFlow = perfFlow;
         this.perfArea = perfArea;
-        this.numTerminal = numTerminal;
+        this.nTerminal = numTerminal;
     }
 }
