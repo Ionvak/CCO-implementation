@@ -5,54 +5,20 @@ import java.lang.Math;
 import java.util.Random;
 
 public class SupportingCircle {
-    private double supportRadius;
-    private double supportArea;
-    private double threshDistance;
-    private int kTerm;
-    private int kTot;
-    private static final int nToss = 10;
+    private double supportRadius; //Supporting circle radius.
+    private double supportArea; //Supporting circle area.
+    private double threshDistance; //Threshold distance.
+    private int kTerm; //Number of terminal segments in supporting circle.
+    private int kTot; //Number of segments in supporting circle.
+    private static final int nToss = 10; //Number of tosses before threshold distance increase.
 
-    SupportingCircle(HashMap<Long, Segment> tree, TreeParams parameters){
-        kTot = 1;
-        kTerm = 1;
 
+    SupportingCircle(TreeParams parameters){
+        this.kTot = 1;
+        this.kTerm = 1;
         this.supportArea = parameters.perfArea / parameters.nTerminal;
         this.supportRadius = Math.sqrt(this.supportArea / Math.PI);
         this.threshDistance = Math.sqrt(this.supportArea / this.kTerm);
-
-        initRoot(tree, parameters);
-    }
-
-    private void initRoot(HashMap<Long, Segment> tree, TreeParams parameters){
-        Random rand = new Random();
-        double perfRadius = parameters.perfRadius;
-        double x = rand.nextDouble() * (2 * perfRadius) -  perfRadius;
-        double y = Math.sqrt(Math.pow(perfRadius, 2) - Math.pow(x, 2));
-        Point rootProximal = new Point(x,y);
-
-        boolean distalFound = false;
-        Point rootDistal = new Point(0,0);
-        int loopCount = 0;
-        double critDistance = 0;
-        while(!distalFound){
-            rootDistal = toss();
-            loopCount++;
-            if(loopCount == nToss){
-                threshDistance += this.threshDistance * 0.1;
-                loopCount = 0;
-            }
-            critDistance = findCritDistance(tree, rootDistal);
-            if(critDistance > threshDistance) continue;
-            distalFound = true;
-        }
-        
-        double length = Segment.findLength(rootProximal, rootDistal);
-        double pressDiff = parameters.perfPress;
-        double flow = parameters.termFlow;
-        double radius = findRadius(parameters, length, pressDiff, flow);
-
-        Segment root = new Segment(rootProximal, rootDistal, radius);
-        tree.put(root.index, root);
     }
 
     private Point toss(){
@@ -81,7 +47,56 @@ public class SupportingCircle {
                 ,0.25);
     }
 
-    private void stretchCircle(HashMap<Long, Segment> tree){
+    private void findOptimal(HashMap<Long, Segment> tree){
+
+    }
+
+    /*
+    ====================================================================================================================
+     Beginning of interface between ArterialTree and SupportingCircle class
+    */
+
+    /**
+     *
+     * @param segments: Hashmap of all segments in the arterial tree.
+     * @param points: Hashmap of all segment endpoints in the arterial tree.
+     * @param parameters: Physical parameters of the tree.
+     */
+    void initRoot(HashMap<Long, Segment> segments, HashMap<Long, Point> points, TreeParams parameters){
+        Random rand = new Random();
+        double perfRadius = parameters.perfRadius;
+        double x = rand.nextDouble() * (2 * perfRadius) -  perfRadius;
+        double y = Math.sqrt(Math.pow(perfRadius, 2) - Math.pow(x, 2));
+        Point rootProximal = new Point(x,y);
+
+        boolean distalFound = false;
+        Point rootDistal = new Point(0,0);
+        int loopCount = 0;
+        double critDistance = 0;
+        while(!distalFound){
+            rootDistal = toss();
+            loopCount++;
+            if(loopCount == nToss){
+                threshDistance += this.threshDistance * 0.1;
+                loopCount = 0;
+            }
+            critDistance = findCritDistance(segments, rootDistal);
+            if(critDistance > threshDistance) continue;
+            distalFound = true;
+        }
+
+        double length = Segment.findLength(rootProximal, rootDistal);
+        double pressDiff = parameters.perfPress;
+        double flow = parameters.termFlow;
+        double radius = findRadius(parameters, length, pressDiff, flow);
+
+        Segment root = new Segment(rootProximal, rootDistal, radius);
+        segments.put(root.index, root);
+        points.put(rootDistal.id, rootDistal);
+        points.put(rootProximal.id, rootProximal);
+    }
+
+    void stretchCircle(HashMap<Long, Segment> tree){
 
     }
 
@@ -89,11 +104,8 @@ public class SupportingCircle {
         return 0;
     }
 
-    private void findOptimal(HashMap<Long, Segment> tree){
 
-    }
-
-    private void rescaleTree(HashMap<Long, Segment> tree){
+    void rescaleTree(HashMap<Long, Segment> tree){
 
     }
 }

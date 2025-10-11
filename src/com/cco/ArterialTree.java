@@ -6,15 +6,20 @@ package com.cco;
 
 import java.util.HashMap;
 
+/**
+ * This class represents the full tree. The build logic and internal operations
+ * are handled by the SupportingCircle class. This class handles the UI and
+ * allows for high level control over the tree.
+ */
+
 public class ArterialTree{
+    private final HashMap<Long, Segment> segments; //Hashmap storing all segments of the tree.
+    private final HashMap<Long, Point> endPoints; //Hashmap storing all segment endpoints of the tree.
+    private final TreeParams params; //Physical parameters of the tree
+    private boolean isBuilt; //Check for tree build status. False if tree is initialized but not built, true if tree is initialized and built.
+    private double target; //The value of the target function for the tree.
 
-    private final HashMap<Long, Segment> segments;
-    private final HashMap<Long, Point> endPoints;
-    private final TreeParams params;
-    private boolean isBuilt;
-    private double target;
 
-    //Initialize the tree given the constants passed to the constructor
     public ArterialTree(TreeParams parameters) {
         this.params = parameters;
         this.segments = new HashMap<Long, Segment>();
@@ -27,6 +32,7 @@ public class ArterialTree{
 
     }
 
+    //Calculate and return the target function value for the tree
     public double getTarget(){
         if(!this.isBuilt) return 0;
         double sum = 0;
@@ -36,6 +42,7 @@ public class ArterialTree{
         return sum;
     }
 
+    //Print a list of the segments with their parameters, and the target function value for the tree.
     public void treeDetails(){
         if(!this.isBuilt){
             System.out.println("Tree is not built. Nothing to display.");
