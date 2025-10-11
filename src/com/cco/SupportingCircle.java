@@ -31,15 +31,13 @@ public class SupportingCircle {
         return new Point(x,y);
     }
 
-    private double findCritDistance(HashMap<Long, Segment> segments, Point point){
-        double dProjection = 0;
-        double dOrthogonal = 0;
-        double dEndpoints = 0;
+    private double findCritDistance(Segment segment, Point point){
         double dCrit = 0;
-        for(Segment s: segments.values()){
-
-        }
-
+        double dProjection = findProjection(segment, point);
+        if(0 <= dProjection && dProjection <=1)
+            dCrit = findOrthogonal(segment, point);
+        else
+            dCrit = findEndpoints(segment, point);
         return dCrit;
     }
 
@@ -88,10 +86,9 @@ public class SupportingCircle {
     /**
      *
      * @param segments: Hashmap of all segments in the arterial tree.
-     * @param points: Hashmap of all segment endpoints in the arterial tree.
      * @param parameters: Physical parameters of the tree.
      */
-    void initRoot(HashMap<Long, Segment> segments, HashMap<Long, Point> points, TreeParams parameters){
+    void initRoot(HashMap<Long, Segment> segments, TreeParams parameters){
         Random rand = new Random();
         double perfRadius = parameters.perfRadius;
         double x = rand.nextDouble() * (2 * perfRadius) -  perfRadius;
@@ -110,7 +107,7 @@ public class SupportingCircle {
                 this.threshDistance += this.threshDistance * 0.1;
                 loopCount = 0;
             }
-            critDistance = findCritDistance(segments, rootDistal);
+            critDistance = Segment.findLength(rootProximal, rootDistal);
             if(critDistance > this.threshDistance) continue;
             distalFound = true;
         }
@@ -122,8 +119,6 @@ public class SupportingCircle {
 
         Segment root = new Segment(rootProximal, rootDistal, radius);
         segments.put(root.index, root);
-        points.put(rootDistal.id, rootDistal);
-        points.put(rootProximal.id, rootProximal);
     }
 
     void stretchCircle(HashMap<Long, Segment> tree){

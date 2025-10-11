@@ -14,7 +14,6 @@ import java.util.HashMap;
 
 public class ArterialTree{
     private final HashMap<Long, Segment> segments; //Hashmap storing all segments of the tree.
-    private final HashMap<Long, Point> endPoints; //Hashmap storing all segment endpoints of the tree.
     private final TreeParams params; //Physical parameters of the tree
     private boolean isBuilt; //Check for tree build status. False if tree is initialized but not built, true if tree is initialized and built.
     private double target; //The value of the target function for the tree.
@@ -23,7 +22,6 @@ public class ArterialTree{
     public ArterialTree(TreeParams parameters) {
         this.params = parameters;
         this.segments = new HashMap<Long, Segment>();
-        this.endPoints = new HashMap<Long, Point>();
         this.isBuilt = false;
         this.target = 0;
     }
