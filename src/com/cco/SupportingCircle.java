@@ -31,16 +31,42 @@ public class SupportingCircle {
         return new Point(x,y);
     }
 
-    private double findCritDistance(HashMap<Long, Segment> tree, Point point){
-        return 0;
+    private double findCritDistance(HashMap<Long, Segment> segments, Point point){
+        double dProjection = 0;
+        double dOrthogonal = 0;
+        double dEndpoints = 0;
+        double dCrit = 0;
+        for(Segment s: segments.values()){
+
+        }
+
+        return dCrit;
     }
 
-    private double findProjection(HashMap<Long, Segment> tree, Point point){
-        return 0;
+    private double findProjection(Segment segment, Point point){
+        return (
+                ((segment.proximal.x - segment.distal.x) * (point.x - segment.distal.x)) +
+                ((segment.proximal.y - segment.distal.y) * (point.y - segment.distal.y))
+                ) /
+                Math.pow(segment.length,2);
     }
 
-    private double findEndpoints(HashMap<Long, Segment> tree, Point point){
-        return 0;
+    private double findOrthogonal(Segment segment, Point point){
+        return Math.abs(
+                ((-segment.proximal.y + segment.distal.y) * (point.x - segment.distal.x)) +
+                ((segment.proximal.x - segment.distal.x) * (point.y - segment.distal.y))
+                ) /
+                segment.length;
+    }
+
+    private double findEndpoints(Segment segment, Point point){
+        return Math.min(
+                Math.sqrt( Math.pow(point.x - segment.distal.x, 2) +
+                        Math.pow(point.y - segment.distal.y, 2) )
+                ,
+                Math.sqrt( Math.pow(point.x - segment.proximal.x, 2) +
+                        Math.pow(point.y - segment.proximal.y, 2) )
+        );
     }
 
     private double findRadius(TreeParams parameters, double length, double pressDiff, double flow){
