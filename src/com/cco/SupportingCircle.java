@@ -16,7 +16,7 @@ public class SupportingCircle {
     SupportingCircle(TreeParams parameters){
         this.kTot = 1;
         this.kTerm = 1;
-        this.supportArea = parameters.perfArea / parameters.nTerminal;
+        this.supportArea = Math.pow(parameters.perfRadius, 2) / parameters.nTerminal;
         this.supportRadius = Math.sqrt(this.supportArea / Math.PI);
         this.threshDistance = Math.sqrt(this.supportArea / this.kTerm);
     }
@@ -137,6 +137,5 @@ public class SupportingCircle {
 
 /*
     TODO:
-     - Implement toss() and findCritDistance()
      - Test developed functionality by letting build process be just the root.
  */
