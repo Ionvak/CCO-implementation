@@ -21,9 +21,12 @@ public class SupportingCircle {
         this.threshDistance = Math.sqrt(this.supportArea / this.kTerm);
     }
 
-    private Point toss(){
-        double x=0;
-        double y=0;
+    private Point toss(TreeParams parameters){
+        Random rand = new Random();
+        double perfRadius = parameters.perfRadius;
+        double x = rand.nextDouble() * (2 * perfRadius) -  perfRadius;
+        double circleBorder = Math.sqrt(Math.pow(perfRadius, 2) - Math.pow(x, 2));
+        double y = rand.nextDouble() * (2 * circleBorder) -  circleBorder;
 
         return new Point(x,y);
     }
@@ -67,6 +70,7 @@ public class SupportingCircle {
         double perfRadius = parameters.perfRadius;
         double x = rand.nextDouble() * (2 * perfRadius) -  perfRadius;
         double y = Math.sqrt(Math.pow(perfRadius, 2) - Math.pow(x, 2));
+        if(rand.nextDouble() - 0.5 < 0) y *= -1;
         Point rootProximal = new Point(x,y);
 
         boolean distalFound = false;
@@ -74,14 +78,14 @@ public class SupportingCircle {
         int loopCount = 0;
         double critDistance = 0;
         while(!distalFound){
-            rootDistal = toss();
+            rootDistal = toss(parameters);
             loopCount++;
             if(loopCount == nToss){
-                threshDistance += this.threshDistance * 0.1;
+                this.threshDistance += this.threshDistance * 0.1;
                 loopCount = 0;
             }
             critDistance = findCritDistance(segments, rootDistal);
-            if(critDistance > threshDistance) continue;
+            if(critDistance > this.threshDistance) continue;
             distalFound = true;
         }
 
@@ -109,3 +113,9 @@ public class SupportingCircle {
 
     }
 }
+
+/*
+    TODO:
+     - Implement toss() and findCritDistance()
+     - Test developed functionality by letting build process be just the root.
+ */
