@@ -113,8 +113,8 @@ public class SupportingCircle {
         }
 
         double length = Segment.findLength(rootProximal, rootDistal);
-        double pressDiff = parameters.perfPress;
-        double flow = parameters.termFlow;
+        double pressDiff = parameters.perfPress - parameters.distalPress;
+        double flow = parameters.perfFlow;
         double radius = findRadius(parameters, length, pressDiff, flow);
 
         Segment root = new Segment(rootProximal, rootDistal, radius);
@@ -134,8 +134,3 @@ public class SupportingCircle {
 
     }
 }
-
-/*
-    TODO:
-     - Test developed functionality by letting build process be just the root.
- */

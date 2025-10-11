@@ -27,7 +27,10 @@ public class ArterialTree{
     }
 
     public void buildTree(){
-
+        SupportingCircle supportingCircle = new SupportingCircle(this.params);
+        supportingCircle.initRoot(this.segments, this.params);
+        this.target = this.getTarget();
+        this.isBuilt = true;
     }
 
     //Calculate and return the target function value for the tree
@@ -45,29 +48,31 @@ public class ArterialTree{
         if(!this.isBuilt){
             System.out.println("Tree is not built. Nothing to display.");
             return;
-        };
+        }
 
         System.out.println("Segments:");
+        String segString;
+        String result;
         for(Segment s: segments.values()){
             System.out.println(s.index + ":");
-            String segString = """
-                    Proximal:   %s,
-                    Distal:     %s,
-                    Length:     %f,
-                    Radius:     %f,
-                    Parent:     %d,
-                    Left Child: %d,
-                    Right Child:%d,
-                    """;
-            String result = String.format(
+            segString = """
+                        Proximal:   %s,
+                        Distal:     %s,
+                        Length:     %f,
+                        Radius:     %f
+                        """;
+            if(s.parent != null) segString = segString + ",\nParent: %d";
+            if(s.childLeft != null) segString = segString + ",\nChild Left: %d";
+            if(s.childRight != null) segString = segString + ",\nChild Right:%d";
+
+            result = String.format(segString,
                     s.proximal.toString(),
                     s.distal.toString(),
                     s.length,
                     s.radius,
-                    s.parent.index,
-                    s.childLeft.index,
-                    s.childRight.index
-            );
+                    s.parent != null ? s.parent.index: null,
+                    s.childLeft != null ? s.childLeft.index : null,
+                    s.childRight != null ? s.childRight.index : null);
 
             System.out.println(result);
             System.out.println("Target function value: " + target);

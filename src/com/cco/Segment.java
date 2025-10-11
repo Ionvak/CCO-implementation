@@ -27,7 +27,7 @@ class Segment {
 
     //Get the total Blood volume within a given segment
     static double findVolume(double radius, double length) {
-        return Math.PI*Math.pow(radius, 2)*length;
+        return Math.PI * Math.pow(radius, 2) * length;
     }
 
     //Get the length of the segment. It is the cartesian distance between its distal and proximal points.
