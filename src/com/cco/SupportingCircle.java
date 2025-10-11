@@ -25,34 +25,35 @@ public class SupportingCircle {
 
     private void initRoot(HashMap<Long, Segment> tree, TreeParams parameters){
         Random rand = new Random();
-        double x = rand.nextDouble() * (2 * parameters.perfRadius) -  parameters.perfRadius;
-        double y = Math.sqrt(Math.pow(parameters.perfRadius, 2) - Math.pow(x, 2));
+        double perfRadius = parameters.perfRadius;
+        double x = rand.nextDouble() * (2 * perfRadius) -  perfRadius;
+        double y = Math.sqrt(Math.pow(perfRadius, 2) - Math.pow(x, 2));
         Point rootProximal = new Point(x,y);
 
         boolean distalFound = false;
         Point rootDistal = new Point(0,0);
+        int loopCount = 0;
+        double critDistance = 0;
         while(!distalFound){
             rootDistal = toss();
-            if(!testProjection(tree, rootDistal)) continue;
-            if(!testEndpoints(tree, rootDistal)) continue;
-            if(!testThreshold(tree, rootDistal)) continue;
+            loopCount++;
+            if(loopCount == nToss){
+                threshDistance += this.threshDistance * 0.1;
+                loopCount = 0;
+            }
+            critDistance = findCritDistance(tree, rootDistal);
+            if(critDistance > threshDistance) continue;
             distalFound = true;
         }
         
         double length = Segment.findLength(rootProximal, rootDistal);
-        double radius = 0;
-        /*
-        TODO: Implement a way to calculate pressure difference.
-            Use it to find the the resistance using the flow, and
-            thus the radius that the segment should have.
-        */
+        double pressDiff = parameters.perfPress;
+        double flow = parameters.termFlow;
+        double radius = findRadius(parameters, length, pressDiff, flow);
+
         Segment root = new Segment(rootProximal, rootDistal, radius);
         tree.put(root.index, root);
     }
-
-    /*
-    TODO: Implement interface functions beginning with toss.
-    */
 
     private Point toss(){
         double x=0;
@@ -61,16 +62,23 @@ public class SupportingCircle {
         return new Point(x,y);
     }
 
-    private boolean testProjection(HashMap<Long, Segment> tree, Point point){
-        return false;
+    private double findCritDistance(HashMap<Long, Segment> tree, Point point){
+        return 0;
     }
 
-    private boolean testEndpoints(HashMap<Long, Segment> tree, Point point){
-        return false;
+    private double findProjection(HashMap<Long, Segment> tree, Point point){
+        return 0;
     }
 
-    private boolean testThreshold(HashMap<Long, Segment> tree, Point point){
-        return false;
+    private double findEndpoints(HashMap<Long, Segment> tree, Point point){
+        return 0;
+    }
+
+    private double findRadius(TreeParams parameters, double length, double pressDiff, double flow){
+        return Math.pow(
+                (8 * parameters.viscosity * length * flow) /
+                (Math.PI * pressDiff)
+                ,0.25);
     }
 
     private void stretchCircle(HashMap<Long, Segment> tree){
@@ -78,7 +86,6 @@ public class SupportingCircle {
     }
 
     double addBif(HashMap<Long, Segment> tree, boolean keepChanges){
-
         return 0;
     }
 
