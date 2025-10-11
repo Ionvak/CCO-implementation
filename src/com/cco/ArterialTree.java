@@ -29,15 +29,15 @@ public class ArterialTree{
     public void buildTree(){
         SupportingCircle supportingCircle = new SupportingCircle(this.params);
         supportingCircle.initRoot(this.segments, this.params);
-        this.target = this.getTarget();
         this.isBuilt = true;
+        this.target = this.getTarget();
     }
 
     //Calculate and return the target function value for the tree
     public double getTarget(){
         if(!this.isBuilt) return 0;
         double sum = 0;
-        for(Segment s: segments.values()) {
+        for(Segment s: this.segments.values()) {
             sum += Segment.findVolume(s.radius, s.length);
         }
         return sum;
@@ -53,7 +53,7 @@ public class ArterialTree{
         System.out.println("Segments:");
         String segString;
         String result;
-        for(Segment s: segments.values()){
+        for(Segment s: this.segments.values()){
             System.out.println(s.index + ":");
             segString = """
                         Proximal:   %s,

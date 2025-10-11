@@ -100,15 +100,16 @@ public class SupportingCircle {
         Point rootDistal = new Point(0,0);
         int loopCount = 0;
         double critDistance = 0;
+        double threshDist = this.threshDistance;
         while(!distalFound){
             rootDistal = toss(parameters);
             loopCount++;
             if(loopCount == nToss){
-                this.threshDistance += this.threshDistance * 0.1;
+                threshDist -= this.threshDistance * 0.1;
                 loopCount = 0;
             }
             critDistance = Segment.findLength(rootProximal, rootDistal);
-            if(critDistance > this.threshDistance) continue;
+            if(critDistance < threshDist) continue;
             distalFound = true;
         }
 
