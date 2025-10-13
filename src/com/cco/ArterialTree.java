@@ -79,4 +79,30 @@ public class ArterialTree{
         }
     }
 
+    public double[][] getSeries(){
+        int count = 0;
+        double[][] series = new double[4][this.segments.size()];
+        for(Segment s: this.segments.values()){
+            series[0][count] = s.proximal.x;
+            series[1][count] = s.proximal.y;
+            series[2][count] = s.distal.x;
+            series[3][count] = s.distal.y;
+            count++;
+        }
+        return series;
+    }
+
+    public double[][] getPerfArea(){
+        double x = -0.05;
+        int i = 0;
+        double[][] series = new double[3][(int) (0.1 / 0.0001)];
+        while(i < 1000){
+            series[0][i] = x;
+            series[1][i] = Math.sqrt( Math.pow(0.05, 2) - Math.pow(x, 2) );
+            series[2][i] = - Math.sqrt( Math.pow(0.05, 2) - Math.pow(x, 2) );
+            x += 0.0001;
+            i++;
+        }
+        return series;
+    }
 }

@@ -134,4 +134,14 @@ public class SupportingCircle {
     void rescaleTree(HashMap<Long, Segment> tree){
 
     }
+
+    /*
+    TODO:
+     - Implement bifurcation addition and more generally
+        improve on tree building procedure.
+     - Implement procedure for finding the optimal bifurcation.
+     - Implement supporting tree stretching.
+     - Implement tree rescaling after bifurcation addition.
+     - Move getTarget to SupportingCircle and name it findTarget
+     */
 }
