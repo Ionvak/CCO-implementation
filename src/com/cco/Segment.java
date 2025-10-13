@@ -36,4 +36,26 @@ class Segment {
                 Math.pow(proximal.y - distal.y, 2) );
     }
 
+    static double findRadius(TreeParams parameters, double length, double pressDiff, double flow){
+        return Math.pow(
+                (8 * parameters.viscosity * length * flow) /
+                        (Math.PI * pressDiff)
+                ,0.25);
+    }
+
+    static double findFlow(double termFlow, Segment segment) {
+        int nDIST = Segment.findNDIST(segment, 0);
+        return nDIST * termFlow;
+    }
+
+    private static int findNDIST(Segment segment, int count) {
+        int nDIST = count;
+        if(segment.childLeft != null)
+            nDIST += findNDIST(segment.childLeft, nDIST);
+        if(segment.childRight != null)
+            nDIST += findNDIST(segment.childRight, nDIST);
+        if(segment.childLeft == null &&  segment.childRight == null)
+            nDIST += 1;
+        return nDIST;
+    }
 }
