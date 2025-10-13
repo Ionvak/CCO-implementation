@@ -4,6 +4,11 @@ package com.cco;
  *building and interacting with the tree.
  * */
 
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYSeries;
+import org.knowm.xchart.style.markers.SeriesMarkers;
+
+import java.awt.*;
 import java.util.HashMap;
 
 /**
@@ -29,18 +34,8 @@ public class ArterialTree{
     public void buildTree(){
         SupportingCircle supportingCircle = new SupportingCircle(this.params);
         supportingCircle.initRoot(this.segments, this.params);
+        this.target = supportingCircle.getTarget(this.segments);
         this.isBuilt = true;
-        this.target = this.getTarget();
-    }
-
-    //Calculate and return the target function value for the tree
-    public double getTarget(){
-        if(!this.isBuilt) return 0;
-        double sum = 0;
-        for(Segment s: this.segments.values()) {
-            sum += Segment.findVolume(s.radius, s.length);
-        }
-        return sum;
     }
 
     //Print a list of the segments with their parameters, and the target function value for the tree.
@@ -81,28 +76,56 @@ public class ArterialTree{
 
     public double[][] getSeries(){
         int count = 0;
-        double[][] series = new double[4][this.segments.size()];
+        double[][] series = new double[2][2 * this.segments.size()];
         for(Segment s: this.segments.values()){
             series[0][count] = s.proximal.x;
             series[1][count] = s.proximal.y;
-            series[2][count] = s.distal.x;
-            series[3][count] = s.distal.y;
+            count++;
+            series[0][count] = s.distal.x;
+            series[1][count] = s.distal.y;
             count++;
         }
         return series;
     }
 
     public double[][] getPerfArea(){
-        double x = -0.05;
+        double STEP = 0.0001;
+        int PRECISION = 2 * (int)(params.perfRadius / STEP);
+        double[][] series = new double[2][2 * PRECISION];
+
         int i = 0;
-        double[][] series = new double[3][(int) (0.1 / 0.0001)];
-        while(i < 1000){
+        double x = -params.perfRadius;
+        while(i < PRECISION){
             series[0][i] = x;
-            series[1][i] = Math.sqrt( Math.pow(0.05, 2) - Math.pow(x, 2) );
-            series[2][i] = - Math.sqrt( Math.pow(0.05, 2) - Math.pow(x, 2) );
-            x += 0.0001;
+            series[1][i] = Math.sqrt( Math.pow(params.perfRadius, 2) - Math.pow(x, 2) );
+            x += STEP;
             i++;
         }
+        i = 0;
+        x = params.perfRadius;
+        while(i < PRECISION){
+            series[0][i + PRECISION] = x;
+            series[1][i + PRECISION] = - Math.sqrt( Math.pow(params.perfRadius, 2) - Math.pow(x, 2) );
+            x -= STEP;
+            i++;
+        }
+
         return series;
+    }
+
+    public void plotTree(XYChart chart){
+        double[][] series = new double[2][2];
+        for(Segment s: this.segments.values()){
+            series[0][0] = s.proximal.x;
+            series[1][0] = s.proximal.y;
+            series[0][1] = s.distal.x;
+            series[1][1] = s.distal.y;
+
+            XYSeries segment = chart.addSeries("Segment: " + s.index, series[0], series[1]);
+                segment.setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Line);
+                segment.setLineColor(Color.RED);
+                segment.setMarker(SeriesMarkers.CIRCLE);
+                segment.setMarkerColor(Color.YELLOW);
+        }
     }
 }
