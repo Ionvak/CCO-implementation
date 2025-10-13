@@ -50,22 +50,23 @@ public class ArterialTree{
         String result;
         for(Segment s: this.segments.values()){
             System.out.println(s.index + ":");
-            segString = """
-                        Proximal:   %s,
-                        Distal:     %s,
-                        Length:     %f,
-                        Radius:     %f
-                        """;
-            if(s.parent != null) segString = segString + ",\nParent: %d";
-            if(s.childLeft != null) segString = segString + ",\nChild Left: %d";
-            if(s.childRight != null) segString = segString + ",\nChild Right:%d";
+            segString =
+                    """
+                    Proximal:   %s,
+                    Distal:     %s,
+                    Length:     %f,
+                    Radius:     %f,
+                    """;
+                    if(s.parent != null) segString = segString + ",\nParent: %d";
+                    if(s.childLeft != null) segString = segString + ",\nChild Left: %d";
+                    if(s.childRight != null) segString = segString + ",\nChild Right:%d";
 
             result = String.format(segString,
                     s.proximal.toString(),
                     s.distal.toString(),
                     s.length,
                     s.radius,
-                    s.parent != null ? s.parent.index: null,
+                    s.parent != null ? s.parent.index : null,
                     s.childLeft != null ? s.childLeft.index : null,
                     s.childRight != null ? s.childRight.index : null);
 

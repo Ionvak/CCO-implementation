@@ -54,7 +54,7 @@ class Segment {
             nDIST += findNDIST(segment.childLeft, nDIST);
         if(segment.childRight != null)
             nDIST += findNDIST(segment.childRight, nDIST);
-        if(segment.childLeft == null &&  segment.childRight == null)
+        if(segment.childLeft == null && segment.childRight == null)
             nDIST += 1;
         return nDIST;
     }
