@@ -78,6 +78,15 @@ public class SupportingCircle {
 
     }
 
+    //Calculate and return the target function value for the tree
+    double getTarget(HashMap<Long, Segment> tree){
+        double sum = 0;
+        for(Segment s: tree.values()) {
+            sum += Segment.findVolume(s.radius, s.length);
+        }
+        return sum;
+    }
+
     /*
     ====================================================================================================================
      Beginning of interface between ArterialTree and SupportingCircle class
