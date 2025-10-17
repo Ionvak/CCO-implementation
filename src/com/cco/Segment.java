@@ -5,6 +5,7 @@ import java.lang.Math;
 /**
  * This class represents a single segment in the arterial tree.
  */
+
 class Segment {
     private static long INDEX = 1; //Variable used to generate Indexes.
     final long index; //index of the segment.
@@ -43,7 +44,7 @@ class Segment {
                 ,0.25);
     }
 
-    static double findFlow(double termFlow, Segment segment) {
+    static double findFlow(Segment segment, double termFlow) {
         int nDIST = Segment.findNDIST(segment, 0);
         return nDIST * termFlow;
     }

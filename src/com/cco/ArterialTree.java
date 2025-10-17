@@ -48,9 +48,9 @@ public class ArterialTree{
             System.out.println(s.index + ":");
             segString =
                     """
-                    Proximal:   %s,
-                    Distal:     %s,
-                    Length:     %f,
+                    Proximal:   %s
+                    Distal:     %s
+                    Length:     %f
                     Radius:     %f""";
             result = String.format(segString,
                     s.proximal.toString(),

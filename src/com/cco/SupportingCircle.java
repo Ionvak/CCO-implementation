@@ -87,7 +87,18 @@ public class SupportingCircle {
         if(s.childRight != null) stretchSegments(s.childRight, factor, deltaX, deltaY);
     }
 
-     double addBif(HashMap<Long, Segment> tree, Segment iConn, Point iNewDistal, boolean keepChanges){
+     double addBif(HashMap<Long, Segment> arterialTree, Segment where, Point iNewDistal, boolean keepChanges){
+        Segment iConn;
+        HashMap<Long, Segment> tree;
+
+        if(keepChanges){
+            iConn = where;
+            tree = arterialTree;
+        }
+        else{
+            iConn = new Segment(where.proximal, where.distal, 0);     //find radius
+            tree = new HashMap<Long, Segment>(arterialTree);
+        }
 
         Point iConnDistPrev = new Point(iConn.distal.x, iConn.distal.y);
         Point iConnProxPrev = new Point(iConn.proximal.x, iConn.proximal.y);
@@ -98,19 +109,20 @@ public class SupportingCircle {
         iConn.proximal = iConn.distal;
         iConn.distal = iConnDistPrev;
 
-        Segment iBif = new Segment(iConnProxPrev, iConn.proximal, 0);
-        Segment iNew = new Segment(iBif.distal, iNewDistal, 0);
+        Segment iBif = new Segment(iConnProxPrev, iConn.proximal, 0); //find radius
+        Segment iNew = new Segment(iBif.distal, iNewDistal, 0);       //find radius
         iBif.parent = iConn.parent;
         iConn.parent = iBif;
         iNew.parent = iBif;
         iBif.childLeft = iBif.distal.x > iNew.distal.x ? iNew : iConn;
         iBif.childRight = iBif.distal.x <= iNew.distal.x ? iNew : iConn;
-        tree.put(iBif.index,  iBif);
-        tree.put(iNew.index,  iNew);
+
+        tree.put(iBif.index, iBif);
+        tree.put(iNew.index, iNew);
 
         //readjust parameters
         //rescale tree
-        return 0;
+        return getTarget(tree);
     }
 
     private void rescaleTree(HashMap<Long, Segment> tree){
