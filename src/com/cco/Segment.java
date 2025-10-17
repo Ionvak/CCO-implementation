@@ -37,6 +37,10 @@ class Segment {
                 Math.pow(proximal.y - distal.y, 2) );
     }
 
+    static double findPressDiff(){
+        return 0;
+    }
+
     static double findRadius(TreeParams parameters, double length, double pressDiff, double flow){
         return Math.pow(
                 (8 * parameters.viscosity * length * flow) /
@@ -52,11 +56,14 @@ class Segment {
     private static int findNDIST(Segment segment, int count) {
         int nDIST = count;
         if(segment.childLeft != null)
-            nDIST += findNDIST(segment.childLeft, nDIST);
+            nDIST = findNDIST(segment.childLeft, nDIST);
         if(segment.childRight != null)
-            nDIST += findNDIST(segment.childRight, nDIST);
-        if(segment.childLeft == null && segment.childRight == null)
-            nDIST += 1;
+            nDIST = findNDIST(segment.childRight, nDIST);
+        if(segment.childLeft == null && segment.childRight == null) nDIST += 1;
         return nDIST;
     }
 }
+
+//TODO:
+// find a way to calculate the pressure difference
+//  Add flow and pressure difference fields to Segment class

@@ -120,8 +120,9 @@ public class SupportingCircle {
         tree.put(iBif.index, iBif);
         tree.put(iNew.index, iNew);
 
-        //readjust parameters
+        //readjust segment parameters
         //rescale tree
+
         return getTarget(tree);
     }
 
