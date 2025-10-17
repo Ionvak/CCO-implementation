@@ -45,7 +45,8 @@ public class ArterialTree{
         String segString;
         String result;
         for(Segment s: this.segments.values()){
-            System.out.println(s.index + ":");
+            if(s.parent == null) System.out.println("(root)");
+            System.out.println("Segment " + s.index + ":");
             segString =
                     """
                     Proximal:   %s
