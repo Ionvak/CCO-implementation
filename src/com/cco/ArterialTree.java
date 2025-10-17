@@ -4,11 +4,6 @@ package com.cco;
  *building and interacting with the tree.
  * */
 
-import org.knowm.xchart.XYChart;
-import org.knowm.xchart.XYSeries;
-import org.knowm.xchart.style.markers.SeriesMarkers;
-
-import java.awt.*;
 import java.util.HashMap;
 
 /**
@@ -34,6 +29,7 @@ public class ArterialTree{
     public void buildTree(){
         SupportingCircle supportingCircle = new SupportingCircle(this.params);
         supportingCircle.initRoot(this.segments, this.params);
+        supportingCircle.addBif(this.segments,this.segments.get(1L),supportingCircle.toss(this.params.perfRadius),true);
         this.target = supportingCircle.getTarget(this.segments);
         this.isBuilt = true;
     }
@@ -55,23 +51,21 @@ public class ArterialTree{
                     Proximal:   %s,
                     Distal:     %s,
                     Length:     %f,
-                    Radius:     %f,
-                    """;
-                    if(s.parent != null) segString = segString + ",\nParent: %d";
-                    if(s.childLeft != null) segString = segString + ",\nChild Left: %d";
-                    if(s.childRight != null) segString = segString + ",\nChild Right:%d";
-
+                    Radius:     %f""";
             result = String.format(segString,
                     s.proximal.toString(),
                     s.distal.toString(),
                     s.length,
-                    s.radius,
-                    s.parent != null ? s.parent.index : null,
-                    s.childLeft != null ? s.childLeft.index : null,
-                    s.childRight != null ? s.childRight.index : null);
+                    s.radius);
 
             System.out.println(result);
-            System.out.println("Target function value: " + target);
+            if(s.parent != null)
+                System.out.println("Parent index: " + s.parent.index);
+            if(s.childLeft != null)
+                System.out.println("Left child index: " + s.childLeft.index);
+            if(s.childRight != null)
+                System.out.println("Right child index: " + s.childRight.index);
+            System.out.println("Target function value: " + target + "\n");
         }
     }
 
@@ -114,19 +108,4 @@ public class ArterialTree{
         return series;
     }
 
-    public void plotTree(XYChart chart){
-        double[][] series = new double[2][2];
-        for(Segment s: this.segments.values()){
-            series[0][0] = s.proximal.x;
-            series[1][0] = s.proximal.y;
-            series[0][1] = s.distal.x;
-            series[1][1] = s.distal.y;
-
-            XYSeries segment = chart.addSeries("Segment: " + s.index, series[0], series[1]);
-                segment.setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Line);
-                segment.setLineColor(Color.RED);
-                segment.setMarker(SeriesMarkers.CIRCLE);
-                segment.setMarkerColor(Color.YELLOW);
-        }
-    }
 }
