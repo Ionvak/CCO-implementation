@@ -39,7 +39,13 @@ public class Main {
             circle.setMarker(SeriesMarkers.NONE);
 
         //Plot the tree
-        arterialTree.plotTree(chart);
+        double[][] series = arterialTree.getSeries();
+            XYSeries segments = chart.addSeries("tree",series[0], series[1]);
+            segments.setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Line);
+            segments.setMarker(SeriesMarkers.CIRCLE);
+            segments.setLineColor(Color.RED);
+            segments.setMarkerColor(Color.YELLOW);
+
 
         //Show the chart
         new SwingWrapper(chart).displayChart();
