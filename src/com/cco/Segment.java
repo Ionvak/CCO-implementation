@@ -14,7 +14,6 @@ class Segment {
     Segment childRight = null; //index of the right child of the segment. null means the segment has no right child.
     Point proximal; //proximal point of the segment.
     Point distal; //distal point of the segment.
-    double length; //length of the segment.
     double radius; // radius of the segment.
 
 
@@ -22,19 +21,22 @@ class Segment {
         this.proximal = new Point(proximal.x, proximal.y);
         this.distal = new Point(distal.x, distal.y);
         this.index = INDEX++;
-        this.length = findLength(this.proximal, this.distal);
         this.radius = radius;
     }
 
     //Get the total Blood volume within a given segment
-    static double findVolume(double radius, double length) {
-        return Math.PI * Math.pow(radius, 2) * length;
+    double volume() {
+        return Math.PI * Math.pow(radius, 2) * length();
     }
-
+    
     //Get the length of the segment. It is the cartesian distance between its distal and proximal points.
-    static double findLength(Point proximal, Point distal) {
+    double length() {
+        return length(proximal, distal);
+    }
+    
+    static double length(Point proximal, Point distal) {
         return Math.sqrt( Math.pow(proximal.x - distal.x, 2) +
-                Math.pow(proximal.y - distal.y, 2) );
+          Math.pow(proximal.y - distal.y, 2) );
     }
 
     static double findPressDiff(){
@@ -48,19 +50,14 @@ class Segment {
                 ,0.25);
     }
 
-    static double findFlow(Segment segment, double termFlow) {
-        int nDIST = Segment.findNDIST(segment, 0);
-        return nDIST * termFlow;
+    public int nDist() {
+        if (childLeft == null)
+            return 1;
+        return childLeft.nDist() + childRight.nDist();
     }
-
-    private static int findNDIST(Segment segment, int count) {
-        int nDIST = count;
-        if(segment.childLeft != null)
-            nDIST = findNDIST(segment.childLeft, nDIST);
-        if(segment.childRight != null)
-            nDIST = findNDIST(segment.childRight, nDIST);
-        if(segment.childLeft == null && segment.childRight == null) nDIST += 1;
-        return nDIST;
+    
+    double flow(double termFlow) {
+        return nDist() * termFlow;
     }
 }
 

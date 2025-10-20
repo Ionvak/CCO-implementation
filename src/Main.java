@@ -49,6 +49,5 @@ public class Main {
 
         //Show the chart
         new SwingWrapper(chart).displayChart();
-
         }
 }

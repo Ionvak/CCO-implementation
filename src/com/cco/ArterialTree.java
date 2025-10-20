@@ -56,7 +56,7 @@ public class ArterialTree{
             result = String.format(segString,
                     s.proximal.toString(),
                     s.distal.toString(),
-                    s.length,
+                    s.length(),
                     s.radius);
 
             System.out.println(result);
@@ -85,25 +85,17 @@ public class ArterialTree{
     }
 
     public double[][] getPerfArea(){
-        double STEP = 0.0001;
-        int PRECISION = 2 * (int)(params.perfRadius / STEP);
+        
+        int PRECISION = 300;
+        double phi_step = 2*Math.PI / PRECISION;
         double[][] series = new double[2][2 * PRECISION];
 
-        int i = 0;
-        double x = -params.perfRadius;
-        while(i < PRECISION){
-            series[0][i] = x;
-            series[1][i] = Math.sqrt( Math.pow(params.perfRadius, 2) - Math.pow(x, 2) );
-            x += STEP;
-            i++;
-        }
-        i = 0;
-        x = params.perfRadius;
-        while(i < PRECISION){
-            series[0][i + PRECISION] = x;
-            series[1][i + PRECISION] = - Math.sqrt( Math.pow(params.perfRadius, 2) - Math.pow(x, 2) );
-            x -= STEP;
-            i++;
+        for(int i = 0; i < 2 * PRECISION; i += 2){
+            double phi = i * phi_step;
+            series[0][i] = params.perfRadius * Math.sin(phi);
+            series[1][i] = params.perfRadius * Math.cos(phi);
+            series[0][i+1] = params.perfRadius * Math.sin(phi + phi_step);
+            series[1][i+1] = params.perfRadius * Math.cos(phi + phi_step);
         }
 
         return series;

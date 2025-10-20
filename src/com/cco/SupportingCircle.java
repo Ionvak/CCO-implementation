@@ -44,7 +44,7 @@ public class SupportingCircle {
                 ((segment.proximal.x - segment.distal.x) * (point.x - segment.distal.x)) +
                 ((segment.proximal.y - segment.distal.y) * (point.y - segment.distal.y))
                 ) /
-                Math.pow(segment.length,2);
+                Math.pow(segment.length(), 2);
     }
 
     private double findOrthogonal(Segment segment, Point point){
@@ -52,7 +52,7 @@ public class SupportingCircle {
                 ((-segment.proximal.y + segment.distal.y) * (point.x - segment.distal.x)) +
                 ((segment.proximal.x - segment.distal.x) * (point.y - segment.distal.y))
                 ) /
-                segment.length;
+                segment.length();
     }
 
     private double findEndpoints(Segment segment, Point point){
@@ -78,7 +78,6 @@ public class SupportingCircle {
         s.distal.x += deltaX;
         s.distal.y += deltaY;
 
-        s.length = Segment.findLength(s.proximal, s.distal);
         //double flow = Segment.findFlow();
         //double pressDiff = ;
         //s.radius = Segment.findRadius(parameters, s.length, pressDiff, flow);
@@ -97,7 +96,7 @@ public class SupportingCircle {
         }
         else{
             iConn = new Segment(where.proximal, where.distal, 0);     //find radius
-            tree = new HashMap<Long, Segment>(arterialTree);
+            tree = new HashMap<>(arterialTree);
         }
 
         Point iConnDistPrev = new Point(iConn.distal.x, iConn.distal.y);
@@ -105,7 +104,6 @@ public class SupportingCircle {
 
         iConn.distal.x = iConn.proximal.x + 0.5 * (iConn.distal.x - iConn.proximal.x);
         iConn.distal.y = iConn.proximal.y + 0.5 * (iConn.distal.y - iConn.proximal.y);
-        iConn.length = Segment.findLength(iConn.proximal, iConn.distal);
         iConn.proximal = iConn.distal;
         iConn.distal = iConnDistPrev;
 
@@ -156,12 +154,12 @@ public class SupportingCircle {
                 threshDist -= this.threshDistance * 0.1;
                 loopCount = 0;
             }
-            critDistance = Segment.findLength(rootProximal, rootDistal);
+            critDistance = Segment.length(rootProximal, rootDistal);
             if(critDistance < threshDist) continue;
             distalFound = true;
         }
 
-        double length = Segment.findLength(rootProximal, rootDistal);
+        double length = Segment.length(rootProximal, rootDistal);
         double pressDiff = parameters.perfPress - parameters.distalPress;
         double flow = parameters.perfFlow;
         double radius = Segment.findRadius(parameters, length, pressDiff, flow);
@@ -174,7 +172,7 @@ public class SupportingCircle {
     double getTarget(HashMap<Long, Segment> tree){
         double sum = 0;
         for(Segment s: tree.values()) {
-            sum += Segment.findVolume(s.radius, s.length);
+            sum += s.volume();
         }
         return sum;
     }
