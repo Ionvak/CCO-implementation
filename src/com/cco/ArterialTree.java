@@ -20,23 +20,23 @@ public class ArterialTree{
 
 
     public ArterialTree(TreeParams parameters) {
-        this.params = parameters;
-        this.segments = new HashMap<Long, Segment>();
-        this.isBuilt = false;
-        this.target = 0;
+        params = parameters;
+        segments = new HashMap<>();
+        isBuilt = false;
+        target = 0;
     }
 
     public void buildTree(){
-        SupportingCircle supportingCircle = new SupportingCircle(this.params);
-        supportingCircle.initRoot(this.segments, this.params);
-        supportingCircle.addBif(this.segments,this.segments.get(1L),supportingCircle.toss(this.params.perfRadius),true);
-        this.target = supportingCircle.getTarget(this.segments);
-        this.isBuilt = true;
+        SupportingCircle supportingCircle = new SupportingCircle(params);
+        supportingCircle.initRoot(segments, params);
+        supportingCircle.addBif(segments,segments.get(1L),supportingCircle.toss(params.perfRadius),true);
+        target = supportingCircle.getTarget(segments);
+        isBuilt = true;
     }
 
     //Print a list of the segments with their parameters, and the target function value for the tree.
     public void treeDetails(){
-        if(!this.isBuilt){
+        if(!isBuilt){
             System.out.println("Tree is not built. Nothing to display.");
             return;
         }
@@ -44,7 +44,7 @@ public class ArterialTree{
         System.out.println("Segments:");
         String segString;
         String result;
-        for(Segment s: this.segments.values()){
+        for(Segment s: segments.values()){
             if(s.parent == null) System.out.println("(root)");
             System.out.println("Segment " + s.index + ":");
             segString =
@@ -56,7 +56,7 @@ public class ArterialTree{
             result = String.format(segString,
                     s.proximal.toString(),
                     s.distal.toString(),
-                    s.length,
+                    s.length(),
                     s.radius);
 
             System.out.println(result);
@@ -72,8 +72,8 @@ public class ArterialTree{
 
     public double[][] getSeries(){
         int count = 0;
-        double[][] series = new double[2][2 * this.segments.size()];
-        for(Segment s: this.segments.values()){
+        double[][] series = new double[2][2 * segments.size()];
+        for(Segment s: segments.values()){
             series[0][count] = s.proximal.x;
             series[1][count] = s.proximal.y;
             count++;
@@ -85,25 +85,16 @@ public class ArterialTree{
     }
 
     public double[][] getPerfArea(){
-        double STEP = 0.0001;
-        int PRECISION = 2 * (int)(params.perfRadius / STEP);
+
+        int PRECISION = 300;
+        double phi;
+        double phi_step = 2*Math.PI / PRECISION;
         double[][] series = new double[2][2 * PRECISION];
 
-        int i = 0;
-        double x = -params.perfRadius;
-        while(i < PRECISION){
-            series[0][i] = x;
-            series[1][i] = Math.sqrt( Math.pow(params.perfRadius, 2) - Math.pow(x, 2) );
-            x += STEP;
-            i++;
-        }
-        i = 0;
-        x = params.perfRadius;
-        while(i < PRECISION){
-            series[0][i + PRECISION] = x;
-            series[1][i + PRECISION] = - Math.sqrt( Math.pow(params.perfRadius, 2) - Math.pow(x, 2) );
-            x -= STEP;
-            i++;
+        for(int i = 0; i < 2 * PRECISION; i++){
+            phi = i * phi_step;
+            series[0][i] = params.perfRadius * Math.sin(phi);
+            series[1][i] = params.perfRadius * Math.cos(phi);
         }
 
         return series;
