@@ -9,20 +9,22 @@ public class SupportingCircle {
     private double threshDistance; //Threshold distance.
     private int kTerm; //Number of terminal segments in supporting circle.
     private int kTot; //Number of segments in supporting circle.
+    private double scale;
     private static final int nToss = 10; //Number of tosses before threshold distance increase.
 
 
     SupportingCircle(TreeParams parameters){
         kTot = 1;
         kTerm = 1;
+        scale = 1;
         supportArea = Math.PI * Math.pow(parameters.perfRadius, 2) / parameters.nTerminal;
         threshDistance = Math.sqrt(this.supportArea / this.kTerm);
     }
 
-     Point toss(double perfRadius){
+     Point toss(double radius){
         Random rand = new Random();
-        double x = rand.nextDouble() * (2 * perfRadius) -  perfRadius;
-        double circleBorder = Math.sqrt(Math.pow(perfRadius, 2) - Math.pow(x, 2));
+        double x = rand.nextDouble() * (2 * radius) -  radius;
+        double circleBorder = Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2));
         double y = rand.nextDouble() * (2 * circleBorder) -  circleBorder;
         return new Point(x,y);
     }
@@ -63,13 +65,7 @@ public class SupportingCircle {
         );
     }
 
-    private void stretchSegments(HashMap<Long, Segment> tree, double factor){
-        for( Segment s: tree.values() ){
-
-        }
-    }
-
-     double addBif(HashMap<Long, Segment> arterialTree, Segment where, Point iNewDistal, boolean keepChanges){
+     private double addBif(HashMap<Long, Segment> arterialTree, Segment where, Point iNewDistal, boolean keepChanges){
         Segment iConn;
         HashMap<Long, Segment> tree;
 
@@ -110,12 +106,6 @@ public class SupportingCircle {
 
     }
 
-
-    /*
-    ====================================================================================================================
-     Beginning of interface between ArterialTree and SupportingCircle class
-    */
-
     void initRoot(HashMap<Long, Segment> segments, TreeParams parameters){
         Random rand = new Random();
         double perfRadius = parameters.perfRadius;
@@ -125,19 +115,19 @@ public class SupportingCircle {
         Point rootProximal = new Point(x,y);
 
         boolean distalFound = false;
-        Point rootDistal = new Point(0,0);
         int loopCount = 0;
         double critDistance = 0;
         double threshDist = threshDistance;
+        Point rootDistal = new Point(0,0);
         while(!distalFound){
-            rootDistal = toss(parameters.perfRadius);
+            rootDistal = toss(perfRadius);
             loopCount++;
             if(loopCount == nToss){
                 threshDist -= threshDistance * 0.1;
                 loopCount = 0;
             }
             critDistance = Math.sqrt( Math.pow(rootProximal.x - rootDistal.x, 2) +
-                    Math.pow(rootProximal.y - rootDistal.y, 2) );
+                                      Math.pow(rootProximal.y - rootDistal.y, 2) );
             if(critDistance < threshDist) continue;
             distalFound = true;
         }
@@ -162,9 +152,13 @@ public class SupportingCircle {
     }
 
     void stretchCircle(HashMap<Long, Segment> tree, TreeParams parameters){
-        supportArea = (kTerm + 1) * Math.PI * Math.pow(parameters.perfRadius, 2) / parameters.nTerminal;
+        scale += 1.0 / kTerm;
+        supportArea *= scale;
         threshDistance = Math.sqrt(supportArea / kTerm);
-        stretchSegments(tree, 1.0 / kTerm );
+    }
+
+    private void getCandidates(){
+
     }
 
     private void addBifOptimal(HashMap<Long, Segment> tree){
@@ -174,8 +168,8 @@ public class SupportingCircle {
 
     /*
     TODO:
-     - Implement bifurcation addition.
-     - Implement procedure for finding the optimal bifurcation.
+     - Implement procedure for finding candidates
+     - Implement procedure for finding the optimal bifurcation from among candidates.
      - Implement tree rescaling after bifurcation addition.
      */
 }
