@@ -65,14 +65,6 @@ public class SupportingCircle {
         );
     }
 
-    private double reducedResistance(double viscocity, double length, double rightRatio, double leftRatio, double leftResistance, double rightResistance){
-        if(leftResistance == 0){
-            return (8 * viscocity * length)/(Math.PI);
-        }
-        else return (8 * viscocity * length)/(Math.PI) +
-                Math.pow(Math.pow(leftRatio,4) / (leftResistance) + Math.pow(rightRatio,4) / (rightResistance) ,-1);
-    }
-
     private double childRadiiRatio(double flowi, double flowj, double resistancei, double resistancej){
         return Math.pow((flowi * resistancei)/(flowj * resistancej), 0.25);
     }
@@ -85,6 +77,33 @@ public class SupportingCircle {
         return Math.pow(rootResistance * rootFlow / pressDiff, 1./4);
     }
 
+    private double reducedResistance(double viscocity, double length, double leftRatio, double rightRatio, double leftResistance, double rightResistance){
+        if(leftResistance == 0){
+            return (8 * viscocity * length)/(Math.PI);
+        }
+        else return (8 * viscocity * length)/(Math.PI) +
+                Math.pow(Math.pow(leftRatio,4) / (leftResistance) + Math.pow(rightRatio,4) / (rightResistance) ,-1);
+    }
+
+    private void segmentRescale(Segment segment, double viscosity, double termFlow){
+        if(segment.childLeft != null){
+            segmentRescale(segment.childLeft,viscosity, termFlow);
+            segmentRescale(segment.childRight,viscosity, termFlow);
+            segment.childRatio = childRadiiRatio(segment.childLeft.flow(termFlow), segment.childRight.flow(termFlow), segment.childLeft.resistance, segment.childRight.resistance);
+            segment.leftRatio = parentRadiiRatio(1/segment.childRatio);
+            segment.rightRatio = parentRadiiRatio(segment.childRatio);
+            segment.resistance = reducedResistance(viscosity,segment.length(),1/segment.leftRatio,1/segment.rightRatio,segment.childLeft.resistance,segment.childRight.resistance);
+        }
+        else{
+            segment.resistance = reducedResistance(viscosity, segment.length(),0,0,0,0);
+        }
+    }
+
+    private void rescaleTree(HashMap<Long, Segment> Tree, TreeParams params){
+        Segment segment = Tree.get(1L);
+        segmentRescale(segment, params.viscosity, params.termFlow);
+    }
+
      private double addBif(HashMap<Long, Segment> arterialTree, Segment where, Point iNewDistal, boolean keepChanges){
         Segment iConn;
         HashMap<Long, Segment> tree;
@@ -95,7 +114,7 @@ public class SupportingCircle {
         }
         else{
             iConn = new Segment(where.proximal, where.distal, 0);     //find radius
-            tree = new HashMap<Long, Segment>(arterialTree);
+            tree = new HashMap<>(arterialTree);
         }
 
         Point iConnProxPrev = new Point(iConn.proximal.x, iConn.proximal.y);
@@ -116,14 +135,7 @@ public class SupportingCircle {
         kTot = kTot + 2;
         kTerm++;
 
-        //readjust segment parameters
-        //rescale tree
-
         return getTarget(tree);
-    }
-
-    private void rescaleTree(HashMap<Long, Segment> tree, TreeParams params){
-
     }
 
     void initRoot(HashMap<Long, Segment> segments, TreeParams parameters){
@@ -185,11 +197,4 @@ public class SupportingCircle {
 
     }
 
-
-    /*
-    TODO:
-     - Implement procedure for finding candidates
-     - Implement procedure for finding the optimal bifurcation from among candidates.
-     - Implement tree rescaling after bifurcation addition.
-     */
 }
