@@ -14,11 +14,11 @@ class Segment {
     Segment childRight = null; //index of the right child of the segment. null means the segment has no right child.
     Point proximal; //proximal point of the segment.
     Point distal; //distal point of the segment.
-    double radius; // radius of the segment.
-    double resistance;
-    double childRatio;
-    double rightRatio;
-    double leftRatio;
+    double radius = 0; // radius of the segment.
+    double resistance = 0;
+    double childRatio = 0;
+    double rightRatio = 0;
+    double leftRatio = 0;
 
 
     public Segment(Point proximal, Point distal, double radius) {
@@ -26,10 +26,6 @@ class Segment {
         this.distal = new Point(distal.x, distal.y);
         this.index = INDEX++;
         this.radius = radius;
-        resistance = 0;
-        childRatio = 0;
-        rightRatio = 0;
-        leftRatio = 0;
     }
 
     //Get the total Blood volume within a given segment

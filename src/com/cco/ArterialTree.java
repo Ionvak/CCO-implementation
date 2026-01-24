@@ -29,7 +29,7 @@ public class ArterialTree{
     public void buildTree(){
         SupportingCircle supportingCircle = new SupportingCircle(params);
         supportingCircle.initRoot(segments, params);
-        supportingCircle.addBif(segments,segments.get(1L),supportingCircle.toss(params.perfRadius),true);
+        //supportingCircle.addBif(segments,segments.get(1L),supportingCircle.toss(params.perfRadius),true);
         target = supportingCircle.getTarget(segments);
         isBuilt = true;
     }
