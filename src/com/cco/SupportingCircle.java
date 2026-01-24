@@ -65,6 +65,26 @@ public class SupportingCircle {
         );
     }
 
+    private double reducedResistance(double viscocity, double length, double rightRatio, double leftRatio, double leftResistance, double rightResistance){
+        if(leftResistance == 0){
+            return (8 * viscocity * length)/(Math.PI);
+        }
+        else return (8 * viscocity * length)/(Math.PI) +
+                Math.pow(Math.pow(leftRatio,4) / (leftResistance) + Math.pow(rightRatio,4) / (rightResistance) ,-1);
+    }
+
+    private double childRadiiRatio(double flowi, double flowj, double resistancei, double resistancej){
+        return Math.pow((flowi * resistancei)/(flowj * resistancej), 0.25);
+    }
+
+    private double parentRadiiRatio(double childRatio){
+        return Math.pow(1 + Math.pow(childRatio, 3), 1.0/3);
+    }
+
+    private double rootRadius(double rootResistance, double rootFlow, double pressDiff){
+        return Math.pow(rootResistance * rootFlow / pressDiff, 1./4);
+    }
+
      private double addBif(HashMap<Long, Segment> arterialTree, Segment where, Point iNewDistal, boolean keepChanges){
         Segment iConn;
         HashMap<Long, Segment> tree;
@@ -102,7 +122,7 @@ public class SupportingCircle {
         return getTarget(tree);
     }
 
-    private void rescaleTree(HashMap<Long, Segment> tree){
+    private void rescaleTree(HashMap<Long, Segment> tree, TreeParams params){
 
     }
 
