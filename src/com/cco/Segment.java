@@ -15,6 +15,10 @@ class Segment {
     Point proximal; //proximal point of the segment.
     Point distal; //distal point of the segment.
     double radius; // radius of the segment.
+    double resistance;
+    double childRatio;
+    double rightRatio;
+    double leftRatio;
 
 
     public Segment(Point proximal, Point distal, double radius) {
@@ -22,6 +26,10 @@ class Segment {
         this.distal = new Point(distal.x, distal.y);
         this.index = INDEX++;
         this.radius = radius;
+        resistance = 0;
+        childRatio = 0;
+        rightRatio = 0;
+        leftRatio = 0;
     }
 
     //Get the total Blood volume within a given segment
@@ -56,7 +64,3 @@ class Segment {
         return childLeft.nDIST() + childRight.nDIST();
     }
 }
-
-//TODO:
-// find a way to calculate the pressure difference
-//  Add flow and pressure difference fields to Segment class
