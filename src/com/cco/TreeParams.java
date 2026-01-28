@@ -8,17 +8,15 @@ package com.cco;
 public class TreeParams {
     final double viscosity;
     final double bifExponent;
-    final double distalPress;
     final double perfPress;
     final double termPress;
     final double perfFlow;
     final double perfRadius;
     final int nTerminal;
 
-    public TreeParams(double viscosity, double bifExponent, double distalPress, double perfPress, double termPress, double perfFlow, double perfRadius, int nTerminal) {
+    public TreeParams(double viscosity, double bifExponent, double perfPress, double termPress, double perfFlow, double perfRadius, int nTerminal) {
         this.viscosity = viscosity;
         this.bifExponent = bifExponent;
-        this.distalPress = distalPress;
         this.perfPress = perfPress;
         this.termPress = termPress;
         this.perfFlow = perfFlow;
