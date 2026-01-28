@@ -70,29 +70,32 @@ public class SupportingCircle {
     }
 
     private double parentRadiiRatio(double childRatio){
-        return Math.pow(1 + Math.pow(childRatio, 3), 1.0/3);
+        return Math.pow(1 + Math.pow(childRatio, 3), -1.0/3);
     }
 
     private double rootRadius(double rootResistance, double rootFlow, double pressDiff){
         return Math.pow(rootResistance * rootFlow / pressDiff, 1./4);
     }
 
-    private double reducedResistance(double viscocity, double length, double leftRatio, double rightRatio, double leftResistance, double rightResistance){
+    private double reducedResistance(double viscosity, double length, double leftRatio, double rightRatio, double leftResistance, double rightResistance){
         if(leftResistance == 0){
-            return (8 * viscocity * length)/(Math.PI);
+            return (8 * viscosity * length)/(Math.PI);
         }
-        else return (8 * viscocity * length)/(Math.PI) +
+        else return (8 * viscosity * length)/(Math.PI) +
                 Math.pow(Math.pow(leftRatio,4) / (leftResistance) + Math.pow(rightRatio,4) / (rightResistance) ,-1);
     }
 
     private void segmentRescale(Segment segment, double viscosity, double termFlow){
-        if(segment.childLeft != null){
-            segmentRescale(segment.childLeft,viscosity, termFlow);
-            segmentRescale(segment.childRight,viscosity, termFlow);
-            segment.childRatio = childRadiiRatio(segment.childLeft.flow(termFlow), segment.childRight.flow(termFlow), segment.childLeft.resistance, segment.childRight.resistance);
-            segment.leftRatio = parentRadiiRatio(1/segment.childRatio);
+        Segment left = segment.childLeft;
+        Segment right = segment.childRight;
+
+        if(left != null){
+            segmentRescale(left, viscosity, termFlow);
+            segmentRescale(right, viscosity, termFlow);
+            segment.childRatio = childRadiiRatio(left.flow(termFlow), right.flow(termFlow), left.resistance, right.resistance);
+            segment.leftRatio = parentRadiiRatio(1 / segment.childRatio);
             segment.rightRatio = parentRadiiRatio(segment.childRatio);
-            segment.resistance = reducedResistance(viscosity,segment.length(),1/segment.leftRatio,1/segment.rightRatio,segment.childLeft.resistance,segment.childRight.resistance);
+            segment.resistance = reducedResistance(viscosity, segment.length(), segment.leftRatio, segment.rightRatio, left.resistance, right.resistance);
         }
         else{
             segment.resistance = reducedResistance(viscosity, segment.length(),0,0,0,0);
@@ -161,7 +164,7 @@ public class SupportingCircle {
 
         boolean distalFound = false;
         int loopCount = 0;
-        double critDistance = 0;
+        double critDistance;
         double threshDist = threshDistance;
         Point rootDistal = new Point(0,0);
         while(!distalFound){
