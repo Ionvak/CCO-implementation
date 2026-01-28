@@ -29,7 +29,7 @@ public class ArterialTree{
     public void buildTree(){
         SupportingCircle supportingCircle = new SupportingCircle(params);
         supportingCircle.initRoot(segments, params);
-        //supportingCircle.addBif(segments,segments.get(1L),supportingCircle.toss(params.perfRadius),true);
+        supportingCircle.addBif(segments,params,segments.get(1L),supportingCircle.toss(params.perfRadius),true);
         target = supportingCircle.getTarget(segments);
         isBuilt = true;
     }
@@ -66,8 +66,9 @@ public class ArterialTree{
                 System.out.println("Left child index: " + s.childLeft.index);
             if(s.childRight != null)
                 System.out.println("Right child index: " + s.childRight.index);
-            System.out.println("Target function value: " + target + "\n");
+            System.out.println("\n");
         }
+        System.out.println("Target function value: " + target + "\n");
     }
 
     public double[][] getSeries(){
