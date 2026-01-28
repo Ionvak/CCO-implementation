@@ -21,11 +21,10 @@ class Segment {
     double leftRatio = 0;
 
 
-    public Segment(Point proximal, Point distal, double radius) {
+    public Segment(Point proximal, Point distal) {
         this.proximal = new Point(proximal.x, proximal.y);
         this.distal = new Point(distal.x, distal.y);
         this.index = INDEX++;
-        this.radius = radius;
     }
 
     //Get the total Blood volume within a given segment
@@ -41,13 +40,6 @@ class Segment {
 
     double pressDiff(){
         return 0;
-    }
-
-    static double findRadius(TreeParams parameters, double length, double pressDiff, double flow){
-        return Math.pow(
-                (8 * parameters.viscosity * length * flow) /
-                        (Math.PI * pressDiff)
-                ,0.25);
     }
 
     double flow( double termFlow) {
