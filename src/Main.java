@@ -16,6 +16,7 @@ void main() {
             3,      //bifExponent
             8.38e3, //distalPress
             1.33e4, //perfPress
+            8.38e3, //termPress
             8.33e-6,//perfFlow
             0.05,   //perfRadius
             250     //numTerminal
