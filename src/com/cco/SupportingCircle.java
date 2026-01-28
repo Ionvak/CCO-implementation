@@ -99,12 +99,25 @@ public class SupportingCircle {
         }
     }
 
-    private void rescaleTree(HashMap<Long, Segment> Tree, TreeParams params){
-        Segment segment = Tree.get(1L);
-        segmentRescale(segment, params.viscosity, params.termFlow);
+    private void calculateRadii(Segment segment, double radius){
+        if(segment.childLeft != null) {
+            calculateRadii(segment.childLeft, segment.radius / segment.leftRatio);
+            calculateRadii(segment.childRight, segment.radius / segment.rightRatio);
+        }
+        segment.radius = radius;
     }
 
-     private double addBif(HashMap<Long, Segment> arterialTree, Segment where, Point iNewDistal, boolean keepChanges){
+    private void rescaleTree(HashMap<Long, Segment> Tree, TreeParams params){
+        Segment root = Tree.get(1L);
+        while(root.parent != null) root = root.parent;
+        segmentRescale(root, params.viscosity, params.perfFlow/params.nTerminal);
+
+        root.radius = rootRadius(root.resistance, root.flow(params.perfFlow/params.nTerminal), params.perfPress-params.termPress);
+        calculateRadii(root.childLeft, root.radius / root.leftRatio);
+        calculateRadii(root.childRight, root.radius / root.rightRatio);
+    }
+
+     public void addBif(HashMap<Long, Segment> arterialTree, TreeParams params, Segment where, Point iNewDistal, boolean keepChanges){
         Segment iConn;
         HashMap<Long, Segment> tree;
 
@@ -113,7 +126,7 @@ public class SupportingCircle {
             tree = arterialTree;
         }
         else{
-            iConn = new Segment(where.proximal, where.distal, 0);     //find radius
+            iConn = new Segment(where.proximal, where.distal);     //find radius
             tree = new HashMap<>(arterialTree);
         }
 
@@ -122,8 +135,8 @@ public class SupportingCircle {
         iConn.proximal.x = iConn.proximal.x + 0.5 * (iConn.distal.x - iConn.proximal.x);
         iConn.proximal.y = iConn.proximal.y + 0.5 * (iConn.distal.y - iConn.proximal.y);
 
-        Segment iBif = new Segment(iConnProxPrev, iConn.proximal, 0); //find radius
-        Segment iNew = new Segment(iBif.distal, iNewDistal, 0);       //find radius
+        Segment iBif = new Segment(iConnProxPrev, iConn.proximal); //find radius
+        Segment iNew = new Segment(iBif.distal, iNewDistal);       //find radius
         iBif.parent = iConn.parent;
         iConn.parent = iBif;
         iNew.parent = iBif;
@@ -135,7 +148,7 @@ public class SupportingCircle {
         kTot = kTot + 2;
         kTerm++;
 
-        return getTarget(tree);
+        rescaleTree(arterialTree, params);
     }
 
     void initRoot(HashMap<Long, Segment> segments, TreeParams parameters){
@@ -167,9 +180,8 @@ public class SupportingCircle {
         double length = critDistance;
         double pressDiff = parameters.perfPress - parameters.distalPress;
         double flow = parameters.perfFlow;
-        double radius = Segment.findRadius(parameters, length, pressDiff, flow);
 
-        Segment root = new Segment(rootProximal, rootDistal, radius);
+        Segment root = new Segment(rootProximal, rootDistal);
         segments.put(root.index, root);
 
     }
