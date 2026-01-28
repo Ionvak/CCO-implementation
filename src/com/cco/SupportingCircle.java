@@ -177,10 +177,6 @@ public class SupportingCircle {
             distalFound = true;
         }
 
-        double length = critDistance;
-        double pressDiff = parameters.perfPress - parameters.distalPress;
-        double flow = parameters.perfFlow;
-
         Segment root = new Segment(rootProximal, rootDistal);
         segments.put(root.index, root);
 
