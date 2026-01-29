@@ -74,7 +74,7 @@ public class SupportingCircle {
     }
 
     private double rootRadius(double rootResistance, double rootFlow, double pressDiff){
-        return Math.pow(rootResistance * rootFlow / pressDiff, 1./4);
+        return Math.pow(rootResistance * rootFlow / pressDiff, 1.0/4);
     }
 
     private double reducedResistance(double viscosity, double length, double leftRatio, double rightRatio, double leftResistance, double rightResistance){
@@ -104,8 +104,8 @@ public class SupportingCircle {
 
     private void calculateRadii(Segment segment, double radius){
         if(segment.childLeft != null) {
-            calculateRadii(segment.childLeft, segment.radius / segment.leftRatio);
-            calculateRadii(segment.childRight, segment.radius / segment.rightRatio);
+            calculateRadii(segment.childLeft, segment.radius * segment.leftRatio);
+            calculateRadii(segment.childRight, segment.radius * segment.rightRatio);
         }
         segment.radius = radius;
     }
@@ -116,8 +116,8 @@ public class SupportingCircle {
         segmentRescale(root, params.viscosity, params.perfFlow/params.nTerminal);
 
         root.radius = rootRadius(root.resistance, root.flow(params.perfFlow/params.nTerminal), params.perfPress-params.termPress);
-        calculateRadii(root.childLeft, root.radius / root.leftRatio);
-        calculateRadii(root.childRight, root.radius / root.rightRatio);
+        calculateRadii(root.childLeft, root.radius * root.leftRatio);
+        calculateRadii(root.childRight, root.radius * root.rightRatio);
     }
 
      public void addBif(HashMap<Long, Segment> arterialTree, TreeParams params, Segment where, Point iNewDistal, boolean keepChanges){
