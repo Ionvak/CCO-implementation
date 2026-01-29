@@ -19,7 +19,7 @@ public class NelderMeadOptimizer {
      * Finds minimum of {@code objectiveFunction} using the Nelder-Mead iterative algorithm.
      * @param x0        starting point for optimization
      * @param tolX      termination tolerance on norm of step
-     * @param tolFun    termination telerance on function value
+     * @param tolFun    termination tolerance on function value
      * @param maxIter   maximum number of iterations
      */
     protected double[] fminsearch(double[] x0, double tolX, double tolFun, int maxIter) {
