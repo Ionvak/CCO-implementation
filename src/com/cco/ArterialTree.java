@@ -14,7 +14,7 @@ import java.lang.Math;
  * allows for high level control over the tree.
  */
 
-public class ArterialTree{
+public class ArterialTree extends NelderMeadOptimizer{
     private final HashMap<Long, Segment> segments; //Hashmap storing all segments of the tree.
     private final TreeParams params; //Physical parameters of the tree
     private boolean isBuilt; //Check for tree build status. False if tree is initialized but not built, true if tree is initialized and built.
@@ -23,6 +23,7 @@ public class ArterialTree{
     private static final int nToss = 10; //Number of tosses before threshold distance increase.
     private int kTerm; //Number of terminal segments in supporting circle.
     private int kTot; //Number of segments in supporting circle.
+    private Point movedPoint;
 
     public ArterialTree(TreeParams parameters) {
         params = parameters;
@@ -144,6 +145,11 @@ public class ArterialTree{
         kTot = kTot + 2;
         kTerm++;
 
+        movedPoint = iBif.distal;
+        double[] x0 = {movedPoint.x, movedPoint.y};
+        double[] optimalPoint = fminsearch(x0);
+        movedPoint.x = optimalPoint[0];
+        movedPoint.y = optimalPoint[1];
         rescaleTree();
     }
 
@@ -204,6 +210,13 @@ public class ArterialTree{
         calculateRadii(root.childRight, root.radius * root.rightRatio);
     }
 
+    @Override
+    protected double objectiveFunction(double[] x) {
+        movedPoint.x = x[0];
+        movedPoint.y = x[1];
+        rescaleTree();
+        return getTarget();
+    }
 
     // End of internal methods, beginning of tree interface.
 
