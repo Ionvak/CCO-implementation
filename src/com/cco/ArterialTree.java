@@ -31,7 +31,7 @@ public class ArterialTree extends NelderMeadOptimizer{
         kTot = 1;
         kTerm = 1;
         double supportArea = Math.PI * Math.pow(parameters.perfRadius, 2) / parameters.nTerminal;
-        threshDistance = Math.sqrt(supportArea / kTerm);
+        threshDistance = 0.05 * Math.sqrt(supportArea / kTerm);
     }
 
     private double findCritDistance(Segment segment, Point point){
@@ -79,6 +79,31 @@ public class ArterialTree extends NelderMeadOptimizer{
         return new Point(x,y);
     }
 
+    private Point newDistal(){
+        boolean invalidDistal = true;
+        int loopCount = 0;
+        double critDistance;
+        double threshDist = threshDistance;
+        Point proposedDistal = toss();
+
+        while(invalidDistal){
+            proposedDistal = toss();
+            invalidDistal = false;
+            for(Segment s: segments.values()){
+                critDistance = findCritDistance(s, proposedDistal);
+                if(critDistance < threshDist)
+                    invalidDistal = true;
+            }
+            loopCount++;
+            if(loopCount == nToss){
+                threshDist -= threshDistance * 0.1;
+                loopCount = 0;
+            }
+        }
+
+        return proposedDistal;
+    }
+
 
     private void initRoot(){
         Random rand = new Random();
@@ -87,34 +112,15 @@ public class ArterialTree extends NelderMeadOptimizer{
         double y = Math.sqrt(Math.pow(perfRadius, 2) - Math.pow(x, 2));
         if(rand.nextDouble() - 0.5 < 0) y *= -1;
         Point rootProximal = new Point(x,y);
-
-        boolean distalFound = false;
-        int loopCount = 0;
-        double critDistance;
-        double threshDist = threshDistance;
-        Point rootDistal = new Point(0,0);
-        while(!distalFound){
-            rootDistal = toss();
-            loopCount++;
-            if(loopCount == nToss){
-                threshDist -= threshDistance * 0.1;
-                loopCount = 0;
-            }
-            critDistance = Math.sqrt( Math.pow(rootProximal.x - rootDistal.x, 2) +
-                    Math.pow(rootProximal.y - rootDistal.y, 2) );
-            if(critDistance < threshDist) continue;
-            distalFound = true;
-        }
-
+        Point rootDistal = newDistal();
         Segment root = new Segment(rootProximal, rootDistal);
         segments.put(root.index, root);
-
     }
 
-    private void addBif(Long where, double xNewDistal, double yNewDistal, boolean keepChanges){
+    private void addBif(Long where, boolean keepChanges){
         Segment iConn;
         HashMap<Long, Segment> tree;
-        Point iNewDistal = new Point(xNewDistal, yNewDistal);
+        Point iNewDistal = newDistal();
 
         if(keepChanges){
             iConn = segments.get(where);
@@ -234,14 +240,12 @@ public class ArterialTree extends NelderMeadOptimizer{
     public void buildTree(){
         initRoot();
 
-        Point newDistal;
         int segCount = 0;
         Segment root = segments.get(1L);
         while(segCount < params.nTerminal){
             if(root.parent != null)
                 root = root.parent;
-        newDistal = toss();
-            addBif(root.index, newDistal.x, newDistal.y, true);
+            addBif(root.index, true);
             segCount++;
         }
 
