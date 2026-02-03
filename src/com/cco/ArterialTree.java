@@ -117,19 +117,10 @@ public class ArterialTree extends NelderMeadOptimizer{
         segments.put(root.index, root);
     }
 
-    private void addBif(Long where, boolean keepChanges){
-        Segment iConn;
-        HashMap<Long, Segment> tree;
+    private void addBif(Long where){
+        Segment iConn = segments.get(where);
+        HashMap<Long, Segment> tree = segments;
         Point iNewDistal = newDistal();
-
-        if(keepChanges){
-            iConn = segments.get(where);
-            tree = segments;
-        }
-        else{
-            iConn = new Segment(segments.get(where).proximal, segments.get(where).distal);     //find radius
-            tree = new HashMap<>(segments);
-        }
 
         Point iConnProxPrev = new Point(iConn.proximal.x, iConn.proximal.y);
 
@@ -245,7 +236,7 @@ public class ArterialTree extends NelderMeadOptimizer{
         while(segCount < params.nTerminal){
             if(root.parent != null)
                 root = root.parent;
-            addBif(root.index, true);
+            addBif(root.index);
             segCount++;
         }
 
