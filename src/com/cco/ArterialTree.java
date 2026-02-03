@@ -18,6 +18,41 @@ public class ArterialTree{
     private boolean isBuilt; //Check for tree build status. False if tree is initialized but not built, true if tree is initialized and built.
     private double target; //The value of the target function for the tree.
 
+    private double findCritDistance(Segment segment, Point point){
+        double dCrit;
+        double dProjection = findProjection(segment, point);
+        if(0 <= dProjection && dProjection <=1)
+            dCrit = findOrthogonal(segment, point);
+        else
+            dCrit = findEndpoints(segment, point);
+        return dCrit;
+    }
+
+    private double findProjection(Segment segment, Point point){
+        return (
+                ((segment.proximal.x - segment.distal.x) * (point.x - segment.distal.x)) +
+                        ((segment.proximal.y - segment.distal.y) * (point.y - segment.distal.y))
+        ) /
+                Math.pow(segment.length(),2);
+    }
+
+    private double findOrthogonal(Segment segment, Point point){
+        return Math.abs(
+                ((-segment.proximal.y + segment.distal.y) * (point.x - segment.distal.x)) +
+                        ((segment.proximal.x - segment.distal.x) * (point.y - segment.distal.y))
+        ) /
+                segment.length();
+    }
+
+    private double findEndpoints(Segment segment, Point point){
+        return Math.min(
+                Math.sqrt( Math.pow(point.x - segment.distal.x, 2) +
+                        Math.pow(point.y - segment.distal.y, 2) )
+                ,
+                Math.sqrt( Math.pow(point.x - segment.proximal.x, 2) +
+                        Math.pow(point.y - segment.proximal.y, 2) )
+        );
+    }
 
     public ArterialTree(TreeParams parameters) {
         params = parameters;

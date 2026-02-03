@@ -29,41 +29,7 @@ public class SupportingCircle {
         return new Point(x,y);
     }
 
-    private double findCritDistance(Segment segment, Point point){
-        double dCrit;
-        double dProjection = findProjection(segment, point);
-        if(0 <= dProjection && dProjection <=1)
-            dCrit = findOrthogonal(segment, point);
-        else
-            dCrit = findEndpoints(segment, point);
-        return dCrit;
-    }
 
-    private double findProjection(Segment segment, Point point){
-        return (
-                ((segment.proximal.x - segment.distal.x) * (point.x - segment.distal.x)) +
-                ((segment.proximal.y - segment.distal.y) * (point.y - segment.distal.y))
-                ) /
-                Math.pow(segment.length(),2);
-    }
-
-    private double findOrthogonal(Segment segment, Point point){
-        return Math.abs(
-                ((-segment.proximal.y + segment.distal.y) * (point.x - segment.distal.x)) +
-                ((segment.proximal.x - segment.distal.x) * (point.y - segment.distal.y))
-                ) /
-                segment.length();
-    }
-
-    private double findEndpoints(Segment segment, Point point){
-        return Math.min(
-                Math.sqrt( Math.pow(point.x - segment.distal.x, 2) +
-                        Math.pow(point.y - segment.distal.y, 2) )
-                ,
-                Math.sqrt( Math.pow(point.x - segment.proximal.x, 2) +
-                        Math.pow(point.y - segment.proximal.y, 2) )
-        );
-    }
 
     private double childRadiiRatio(double flowi, double flowj, double resistancei, double resistancej){
         return Math.pow((flowi * resistancei)/(flowj * resistancej), 0.25);
@@ -185,7 +151,6 @@ public class SupportingCircle {
 
     }
 
-    //Calculate and return the target function value for the tree
     double getTarget(HashMap<Long, Segment> tree){
         double sum = 0;
         for(Segment s: tree.values()) {
@@ -194,18 +159,11 @@ public class SupportingCircle {
         return sum;
     }
 
+
     void stretchCircle(HashMap<Long, Segment> tree, TreeParams parameters){
         scale += 1.0 / kTerm;
         supportArea *= scale;
         threshDistance = Math.sqrt(supportArea / kTerm);
-    }
-
-    private void getCandidates(){
-
-    }
-
-    private void addBifOptimal(HashMap<Long, Segment> tree){
-
     }
 
 }
