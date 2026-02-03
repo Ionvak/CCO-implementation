@@ -18,7 +18,6 @@ public class ArterialTree extends NelderMeadOptimizer{
     private final HashMap<Long, Segment> segments; //Hashmap storing all segments of the tree.
     private final TreeParams params; //Physical parameters of the tree
     private boolean isBuilt; //Check for tree build status. False if tree is initialized but not built, true if tree is initialized and built.
-    private double target; //The value of the target function for the tree.
     private final double threshDistance; //Threshold distance.
     private static final int nToss = 10; //Number of tosses before threshold distance increase.
     private int kTerm; //Number of terminal segments in supporting circle.
@@ -29,7 +28,6 @@ public class ArterialTree extends NelderMeadOptimizer{
         params = parameters;
         segments = new HashMap<>();
         isBuilt = false;
-        target = 0;
         kTot = 1;
         kTerm = 1;
         double supportArea = Math.PI * Math.pow(parameters.perfRadius, 2) / parameters.nTerminal;
@@ -146,10 +144,13 @@ public class ArterialTree extends NelderMeadOptimizer{
         kTerm++;
 
         movedPoint = iBif.distal;
+        iConn.proximal = movedPoint;
+        iNew.proximal = movedPoint;
         double[] x0 = {movedPoint.x, movedPoint.y};
         double[] optimalPoint = fminsearch(x0);
         movedPoint.x = optimalPoint[0];
         movedPoint.y = optimalPoint[1];
+
         rescaleTree();
     }
 
@@ -232,9 +233,18 @@ public class ArterialTree extends NelderMeadOptimizer{
 
     public void buildTree(){
         initRoot();
-        Point newDistal = toss();
-        addBif(1L, newDistal.x, newDistal.y, true);
-        target = getTarget();
+
+        Point newDistal;
+        int segCount = 0;
+        Segment root = segments.get(1L);
+        while(segCount < params.nTerminal){
+            if(root.parent != null)
+                root = root.parent;
+        newDistal = toss();
+            addBif(root.index, newDistal.x, newDistal.y, true);
+            segCount++;
+        }
+
         isBuilt = true;
     }
 
@@ -272,7 +282,7 @@ public class ArterialTree extends NelderMeadOptimizer{
                 System.out.println("Right child index: " + s.childRight.index);
             System.out.println("\n");
         }
-        System.out.println("Target function value: " + target + "\n");
+        System.out.println("Target function value: " + getTarget() + "\n");
     }
 
     public double[][] getSeries(){
