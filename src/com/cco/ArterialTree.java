@@ -5,7 +5,8 @@ package com.cco;
  * */
 
 import java.util.HashMap;
-Moimport java.util.Random;
+import java.util.Random;
+import java.lang.Math;
 
 /**
  * This class represents the full tree. The build logic and internal operations
@@ -18,8 +19,7 @@ public class ArterialTree{
     private final TreeParams params; //Physical parameters of the tree
     private boolean isBuilt; //Check for tree build status. False if tree is initialized but not built, true if tree is initialized and built.
     private double target; //The value of the target function for the tree.
-    private double supportArea; //Supporting circle area.
-    private double threshDistance; //Threshold distance.
+    private final double threshDistance; //Threshold distance.
     private static final int nToss = 10; //Number of tosses before threshold distance increase.
     private int kTerm; //Number of terminal segments in supporting circle.
     private int kTot; //Number of segments in supporting circle.
@@ -31,8 +31,8 @@ public class ArterialTree{
         target = 0;
         kTot = 1;
         kTerm = 1;
-        supportArea = Math.PI * Math.pow(parameters.perfRadius, 2) / parameters.nTerminal;
-        threshDistance = Math.sqrt(this.supportArea / this.kTerm);
+        double supportArea = Math.PI * Math.pow(parameters.perfRadius, 2) / parameters.nTerminal;
+        threshDistance = Math.sqrt(supportArea / kTerm);
     }
 
     private double findCritDistance(Segment segment, Point point){
@@ -81,7 +81,7 @@ public class ArterialTree{
     }
 
 
-    private void initRoot(double threshDistance, int nToss){
+    private void initRoot(){
         Random rand = new Random();
         double perfRadius = params.perfRadius;
         double x = rand.nextDouble() * (2 * perfRadius) -  perfRadius;
@@ -144,7 +144,64 @@ public class ArterialTree{
         kTot = kTot + 2;
         kTerm++;
 
-        rescaleTree(arterialTree, params);
+        rescaleTree();
+    }
+
+
+    private double childRadiiRatio(double flowi, double flowj, double resistancei, double resistancej){
+        return Math.pow((flowi * resistancei)/(flowj * resistancej), 0.25);
+    }
+
+    private double parentRadiiRatio(double childRatio){
+        return Math.pow(1 + Math.pow(childRatio, 3), -1.0/3);
+    }
+
+    private double rootRadius(double rootResistance, double rootFlow, double pressDiff){
+        return Math.pow(rootResistance * rootFlow / pressDiff, 1.0/4);
+    }
+
+    private double reducedResistance(double viscosity, double length, double leftRatio, double rightRatio, double leftResistance, double rightResistance){
+        if(leftResistance == 0){
+            return (8 * viscosity * length)/(Math.PI);
+        }
+        else return (8 * viscosity * length)/(Math.PI) +
+                Math.pow(Math.pow(leftRatio,4) / (leftResistance) + Math.pow(rightRatio,4) / (rightResistance) ,-1);
+    }
+
+    private void segmentRescale(Segment segment){
+        Segment left = segment.childLeft;
+        Segment right = segment.childRight;
+        double termFlow = params.perfFlow / params.nTerminal;
+
+        if(left != null){
+            segmentRescale(left);
+            segmentRescale(right);
+            segment.childRatio = childRadiiRatio(left.flow(termFlow), right.flow(termFlow), left.resistance, right.resistance);
+            segment.leftRatio = parentRadiiRatio(1 / segment.childRatio);
+            segment.rightRatio = parentRadiiRatio(segment.childRatio);
+            segment.resistance = reducedResistance(params.viscosity, segment.length(), segment.leftRatio, segment.rightRatio, left.resistance, right.resistance);
+        }
+        else{
+            segment.resistance = reducedResistance(params.viscosity, segment.length(),0,0,0,0);
+        }
+    }
+
+    private void calculateRadii(Segment segment, double radius){
+        if(segment.childLeft != null) {
+            calculateRadii(segment.childLeft, segment.radius * segment.leftRatio);
+            calculateRadii(segment.childRight, segment.radius * segment.rightRatio);
+        }
+        segment.radius = radius;
+    }
+
+    private void rescaleTree(){
+        Segment root = segments.get(1L);
+        while(root.parent != null) root = root.parent;
+        segmentRescale(root);
+
+        root.radius = rootRadius(root.resistance, root.flow(params.perfFlow/params.nTerminal), params.perfPress-params.termPress);
+        calculateRadii(root.childLeft, root.radius * root.leftRatio);
+        calculateRadii(root.childRight, root.radius * root.rightRatio);
     }
 
     public double getTarget(){
@@ -156,9 +213,10 @@ public class ArterialTree{
     }
 
     public void buildTree(){
-        initRoot(segments, params);
-        addBif(segments,params,segments.get(1L), toss(),true);
-        target = getTarget(segments);
+        initRoot();
+        Point newDistal = toss();
+        addBif(1L, newDistal.x, newDistal.y, true);
+        target = getTarget();
         isBuilt = true;
     }
 
