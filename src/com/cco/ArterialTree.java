@@ -5,6 +5,7 @@ package com.cco;
  * */
 
 import java.util.HashMap;
+Moimport java.util.Random;
 
 /**
  * This class represents the full tree. The build logic and internal operations
@@ -17,6 +18,22 @@ public class ArterialTree{
     private final TreeParams params; //Physical parameters of the tree
     private boolean isBuilt; //Check for tree build status. False if tree is initialized but not built, true if tree is initialized and built.
     private double target; //The value of the target function for the tree.
+    private double supportArea; //Supporting circle area.
+    private double threshDistance; //Threshold distance.
+    private static final int nToss = 10; //Number of tosses before threshold distance increase.
+    private int kTerm; //Number of terminal segments in supporting circle.
+    private int kTot; //Number of segments in supporting circle.
+
+    public ArterialTree(TreeParams parameters) {
+        params = parameters;
+        segments = new HashMap<>();
+        isBuilt = false;
+        target = 0;
+        kTot = 1;
+        kTerm = 1;
+        supportArea = Math.PI * Math.pow(parameters.perfRadius, 2) / parameters.nTerminal;
+        threshDistance = Math.sqrt(this.supportArea / this.kTerm);
+    }
 
     private double findCritDistance(Segment segment, Point point){
         double dCrit;
@@ -54,18 +71,94 @@ public class ArterialTree{
         );
     }
 
-    public ArterialTree(TreeParams parameters) {
-        params = parameters;
-        segments = new HashMap<>();
-        isBuilt = false;
-        target = 0;
+    Point toss(){
+        double radius = params.perfRadius;
+        Random rand = new Random();
+        double x = rand.nextDouble() * (2 * radius) -  radius;
+        double circleBorder = Math.sqrt(Math.pow(radius, 2) - Math.pow(x, 2));
+        double y = rand.nextDouble() * (2 * circleBorder) -  circleBorder;
+        return new Point(x,y);
+    }
+
+
+    private void initRoot(double threshDistance, int nToss){
+        Random rand = new Random();
+        double perfRadius = params.perfRadius;
+        double x = rand.nextDouble() * (2 * perfRadius) -  perfRadius;
+        double y = Math.sqrt(Math.pow(perfRadius, 2) - Math.pow(x, 2));
+        if(rand.nextDouble() - 0.5 < 0) y *= -1;
+        Point rootProximal = new Point(x,y);
+
+        boolean distalFound = false;
+        int loopCount = 0;
+        double critDistance;
+        double threshDist = threshDistance;
+        Point rootDistal = new Point(0,0);
+        while(!distalFound){
+            rootDistal = toss();
+            loopCount++;
+            if(loopCount == nToss){
+                threshDist -= threshDistance * 0.1;
+                loopCount = 0;
+            }
+            critDistance = Math.sqrt( Math.pow(rootProximal.x - rootDistal.x, 2) +
+                    Math.pow(rootProximal.y - rootDistal.y, 2) );
+            if(critDistance < threshDist) continue;
+            distalFound = true;
+        }
+
+        Segment root = new Segment(rootProximal, rootDistal);
+        segments.put(root.index, root);
+
+    }
+
+    public void addBif(Long where, double xNewDistal, double yNewDistal, boolean keepChanges){
+        Segment iConn;
+        HashMap<Long, Segment> tree;
+        Point iNewDistal = new Point(xNewDistal, yNewDistal);
+
+        if(keepChanges){
+            iConn = segments.get(where);
+            tree = segments;
+        }
+        else{
+            iConn = new Segment(segments.get(where).proximal, segments.get(where).distal);     //find radius
+            tree = new HashMap<>(segments);
+        }
+
+        Point iConnProxPrev = new Point(iConn.proximal.x, iConn.proximal.y);
+
+        iConn.proximal.x = iConn.proximal.x + 0.5 * (iConn.distal.x - iConn.proximal.x);
+        iConn.proximal.y = iConn.proximal.y + 0.5 * (iConn.distal.y - iConn.proximal.y);
+
+        Segment iBif = new Segment(iConnProxPrev, iConn.proximal); //find radius
+        Segment iNew = new Segment(iBif.distal, iNewDistal);       //find radius
+        iBif.parent = iConn.parent;
+        iConn.parent = iBif;
+        iNew.parent = iBif;
+        iBif.childLeft = iBif.distal.x > iNew.distal.x ? iNew : iConn;
+        iBif.childRight = iBif.distal.x <= iNew.distal.x ? iNew : iConn;
+
+        tree.put(iBif.index, iBif);
+        tree.put(iNew.index, iNew);
+        kTot = kTot + 2;
+        kTerm++;
+
+        rescaleTree(arterialTree, params);
+    }
+
+    public double getTarget(){
+        double sum = 0;
+        for(Segment s: segments.values()) {
+            sum += s.volume();
+        }
+        return sum;
     }
 
     public void buildTree(){
-        SupportingCircle supportingCircle = new SupportingCircle(params);
-        supportingCircle.initRoot(segments, params);
-        supportingCircle.addBif(segments,params,segments.get(1L),supportingCircle.toss(params.perfRadius),true);
-        target = supportingCircle.getTarget(segments);
+        initRoot(segments, params);
+        addBif(segments,params,segments.get(1L), toss(),true);
+        target = getTarget(segments);
         isBuilt = true;
     }
 
