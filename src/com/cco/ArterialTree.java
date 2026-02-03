@@ -1,9 +1,5 @@
 package com.cco;
 
-/*This class represents the whole tree. It is intended to provide the full interface for
- *building and interacting with the tree.
- * */
-
 import java.util.HashMap;
 import java.util.Random;
 import java.lang.Math;
@@ -302,3 +298,8 @@ public class ArterialTree extends NelderMeadOptimizer{
     }
 
 }
+
+//TODO:
+//visualization fix
+//comments
+//candidate selection
