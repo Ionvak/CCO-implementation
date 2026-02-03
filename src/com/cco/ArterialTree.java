@@ -224,13 +224,11 @@ public class ArterialTree extends NelderMeadOptimizer{
     public void buildTree(){
         initRoot();
 
-        int segCount = 0;
         Segment root = segments.get(1L);
-        while(segCount < params.nTerminal){
-            if(root.parent != null)
-                root = root.parent;
+        while(kTerm < params.nTerminal){
+            if(root.childLeft != null)
+                root = root.childLeft;
             addBif(root.index);
-            segCount++;
         }
 
         isBuilt = true;
@@ -247,6 +245,7 @@ public class ArterialTree extends NelderMeadOptimizer{
         String result;
         for(Segment s: segments.values()){
             if(s.parent == null) System.out.println("(root)");
+            if(s.childLeft == null) System.out.println("(terminal)");
             System.out.println("Segment " + s.index + ":");
             segString =
                     """
