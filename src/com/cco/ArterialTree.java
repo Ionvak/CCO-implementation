@@ -71,7 +71,7 @@ public class ArterialTree{
         );
     }
 
-    Point toss(){
+    private Point toss(){
         double radius = params.perfRadius;
         Random rand = new Random();
         double x = rand.nextDouble() * (2 * radius) -  radius;
@@ -112,7 +112,7 @@ public class ArterialTree{
 
     }
 
-    public void addBif(Long where, double xNewDistal, double yNewDistal, boolean keepChanges){
+    private void addBif(Long where, double xNewDistal, double yNewDistal, boolean keepChanges){
         Segment iConn;
         HashMap<Long, Segment> tree;
         Point iNewDistal = new Point(xNewDistal, yNewDistal);
@@ -203,6 +203,11 @@ public class ArterialTree{
         calculateRadii(root.childLeft, root.radius * root.leftRatio);
         calculateRadii(root.childRight, root.radius * root.rightRatio);
     }
+
+
+    // End of internal methods, beginning of tree interface.
+
+
 
     public double getTarget(){
         double sum = 0;
