@@ -8,12 +8,6 @@ import java.util.HashMap;
 import java.util.Random;
 import java.lang.Math;
 
-/**
- * This class represents the full tree. The build logic and internal operations
- * are handled by the SupportingCircle class. This class handles the UI and
- * allows for high level control over the tree.
- */
-
 public class ArterialTree extends NelderMeadOptimizer{
     private final HashMap<Long, Segment> segments; //Hashmap storing all segments of the tree.
     private final TreeParams params; //Physical parameters of the tree
@@ -103,7 +97,6 @@ public class ArterialTree extends NelderMeadOptimizer{
 
         return proposedDistal;
     }
-
 
     private void initRoot(){
         Random rand = new Random();
@@ -216,7 +209,7 @@ public class ArterialTree extends NelderMeadOptimizer{
         return getTarget();
     }
 
-    // End of internal methods, beginning of tree interface.
+    // End of internal methods. Beginning of tree interface.
 
 
 
@@ -243,7 +236,6 @@ public class ArterialTree extends NelderMeadOptimizer{
         isBuilt = true;
     }
 
-    //Print a list of the segments with their parameters, and the target function value for the tree.
     public void treeDetails(){
         if(!isBuilt){
             System.out.println("Tree is not built. Nothing to display.");
