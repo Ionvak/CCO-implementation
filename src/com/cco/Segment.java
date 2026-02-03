@@ -38,10 +38,6 @@ class Segment {
                 Math.pow(proximal.y - distal.y, 2) );
     }
 
-    double pressDiff(){
-        return 0;
-    }
-
     double flow( double termFlow) {
         return nDIST() * termFlow;
     }
