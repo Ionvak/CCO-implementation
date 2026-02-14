@@ -108,6 +108,33 @@ public class ArterialTree extends NelderMeadOptimizer{
         segments.put(root.index, root);
     }
 
+    private long findOptimalCandidate(Point distal){
+        ArrayList<Double> distances = new ArrayList<>();
+        List<Double> candidateDistances;
+        ArrayList<Segment> candidates = new ArrayList<>();
+        double minTarget = 1;
+        long optimalSegment = 0;
+        double target;
+
+        for(Segment s: segments.values())
+            distances.add(findCritDistance(s,distal));
+
+        distances.sort(null);
+        candidateDistances = (distances.size() > 20) ? distances.subList(0,20) : distances;
+
+        for(Segment s: segments.values())
+            if(candidateDistances.contains(findCritDistance(s,distal)))
+                candidates.add(s);
+
+        for(Segment s: candidates)
+            if((target = addBif(s.index,distal,false)) < minTarget){
+                minTarget = target;
+                optimalSegment = s.index;
+            }
+
+        return optimalSegment;
+    }
+
     private double addBif(Long where, Point iNewDistal, boolean keepChanges){
         HashMap<Long, Segment> tree = segments;
         if(!keepChanges)
@@ -143,29 +170,9 @@ public class ArterialTree extends NelderMeadOptimizer{
         return getTarget();
     }
 
-    private long optimalCandidate(Point distal){
-        ArrayList<Double> distances = new ArrayList<>();
-        List<Double> candidates = new ArrayList<>();
-
-        for(Segment s: segments.values())
-            distances.add(findCritDistance(s,distal));
-        distances.sort(null);
-        int distancesSize = distances.size();
-        if(distancesSize > 20)
-            candidates = distances.subList(distancesSize - 20, distancesSize);
-        else
-            candidates = distances;
-
-        double minTarget = 1, temp;
-        long optimal = 0;
-        for(Segment s: segments.values()) {
-            if((temp = addBif(s.index,distal,false)) < minTarget) {
-                minTarget = temp;
-                optimal = s.index;
-            }
-        }
-
-        return optimal;
+    private double addBifOptimal(Point iNewDistal, boolean keepChanges){
+        long optimal = findOptimalCandidate(iNewDistal);
+        return addBif(optimal,iNewDistal,keepChanges);
     }
 
     private double childRadiiRatio(double flowi, double flowj, double resistancei, double resistancej){
