@@ -7,8 +7,8 @@ import java.util.Random;
 import java.lang.Math;
 
 public class ArterialTree extends NelderMeadOptimizer{
-    private final HashMap<Long, Segment> segments; //Hashmap storing all segments of the tree.
     private final TreeParams params; //Physical parameters of the tree
+    private  HashMap<Long, Segment> segments; //Hashmap storing all segments of the tree.
     private boolean isBuilt; //Check for tree build status. False if tree is initialized but not built, true if tree is initialized and built.
     private final double threshDistance; //Threshold distance.
     private static final int nToss = 10; //Number of tosses before threshold distance increase.
@@ -118,7 +118,6 @@ public class ArterialTree extends NelderMeadOptimizer{
 
         for(Segment s: segments.values())
             distances.add(findCritDistance(s,distal));
-
         distances.sort(null);
         candidateDistances = (distances.size() > 20) ? distances.subList(0,20) : distances;
 
@@ -136,10 +135,8 @@ public class ArterialTree extends NelderMeadOptimizer{
     }
 
     private double addBif(Long where, Point iNewDistal, boolean keepChanges){
-        HashMap<Long, Segment> tree = segments;
-        if(!keepChanges)
-            tree = new HashMap<>(segments);
-        Segment iConn = tree.get(where);
+        HashMap<Long,Segment> savedState = new HashMap<>(segments);
+        Segment iConn = segments.get(where);
 
         Point iConnProxPrev = new Point(iConn.proximal.x, iConn.proximal.y);
         iConn.proximal.x = iConn.proximal.x + 0.5 * (iConn.distal.x - iConn.proximal.x);
@@ -153,10 +150,12 @@ public class ArterialTree extends NelderMeadOptimizer{
         iBif.childLeft = iBif.distal.x > iNew.distal.x ? iNew : iConn;
         iBif.childRight = iBif.distal.x <= iNew.distal.x ? iNew : iConn;
 
-        tree.put(iBif.index, iBif);
-        tree.put(iNew.index, iNew);
-        kTot = kTot + 2;
-        kTerm++;
+        segments.put(iBif.index, iBif);
+        segments.put(iNew.index, iNew);
+        if(keepChanges) {
+            kTot = kTot + 2;
+            kTerm++;
+        }
 
         movedPoint = iBif.distal;
         iConn.proximal = movedPoint;
@@ -167,7 +166,9 @@ public class ArterialTree extends NelderMeadOptimizer{
         movedPoint.y = optimalPoint[1];
 
         rescaleTree();
-        return getTarget();
+        double target = getTarget();
+        if(!keepChanges) segments = savedState;
+        return target;
     }
 
     private double addBifOptimal(Point iNewDistal, boolean keepChanges){
@@ -253,14 +254,8 @@ public class ArterialTree extends NelderMeadOptimizer{
 
     public void buildTree(){
         initRoot();
-
-        Segment root = segments.get(1L);
-        while(kTerm < params.nTerminal){
-            if(root.childLeft != null)
-                root = root.childLeft;
-            addBif(root.index,newDistal(),true);
-        }
-
+        while(kTerm < params.nTerminal)
+            addBifOptimal(newDistal(),true);
         isBuilt = true;
     }
 
