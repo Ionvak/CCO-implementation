@@ -1,6 +1,8 @@
 package com.cco;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.lang.Math;
 
@@ -106,13 +108,13 @@ public class ArterialTree extends NelderMeadOptimizer{
         segments.put(root.index, root);
     }
 
-    private void addBif(Long where){
-        Segment iConn = segments.get(where);
+    private double addBif(Long where, Point iNewDistal, boolean keepChanges){
         HashMap<Long, Segment> tree = segments;
-        Point iNewDistal = newDistal();
+        if(!keepChanges)
+            tree = new HashMap<>(segments);
+        Segment iConn = tree.get(where);
 
         Point iConnProxPrev = new Point(iConn.proximal.x, iConn.proximal.y);
-
         iConn.proximal.x = iConn.proximal.x + 0.5 * (iConn.distal.x - iConn.proximal.x);
         iConn.proximal.y = iConn.proximal.y + 0.5 * (iConn.distal.y - iConn.proximal.y);
 
@@ -138,8 +140,33 @@ public class ArterialTree extends NelderMeadOptimizer{
         movedPoint.y = optimalPoint[1];
 
         rescaleTree();
+        return getTarget();
     }
 
+    private long optimalCandidate(Point distal){
+        ArrayList<Double> distances = new ArrayList<>();
+        List<Double> candidates = new ArrayList<>();
+
+        for(Segment s: segments.values())
+            distances.add(findCritDistance(s,distal));
+        distances.sort(null);
+        int distancesSize = distances.size();
+        if(distancesSize > 20)
+            candidates = distances.subList(distancesSize - 20, distancesSize);
+        else
+            candidates = distances;
+
+        double minTarget = 1, temp;
+        long optimal = 0;
+        for(Segment s: segments.values()) {
+            if((temp = addBif(s.index,distal,false)) < minTarget) {
+                minTarget = temp;
+                optimal = s.index;
+            }
+        }
+
+        return optimal;
+    }
 
     private double childRadiiRatio(double flowi, double flowj, double resistancei, double resistancej){
         return Math.pow((flowi * resistancei)/(flowj * resistancej), 0.25);
@@ -224,7 +251,7 @@ public class ArterialTree extends NelderMeadOptimizer{
         while(kTerm < params.nTerminal){
             if(root.childLeft != null)
                 root = root.childLeft;
-            addBif(root.index);
+            addBif(root.index,newDistal(),true);
         }
 
         isBuilt = true;
