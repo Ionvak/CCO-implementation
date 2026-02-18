@@ -27,6 +27,15 @@ class Segment {
         this.index = INDEX++;
     }
 
+    public Segment(Segment sourceSegment) {
+        proximal = sourceSegment.proximal;
+        distal = sourceSegment.distal;
+        childLeft = sourceSegment.childLeft;
+        childRight = sourceSegment.childRight;
+        parent = sourceSegment.parent;
+        index = INDEX++;
+    }
+
     //Get the total Blood volume within a given segment
     double volume() {
         return Math.PI * Math.pow(radius, 2) * length();
