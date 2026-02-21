@@ -8,7 +8,7 @@ import java.lang.Math;
 
 public class ArterialTree extends NelderMeadOptimizer{
     private final TreeParams params; //Physical parameters of the tree
-    private  HashMap<Long, Segment> segments; //Hashmap storing all segments of the tree.
+    private  final HashMap<Long, Segment> segments; //Hashmap storing all segments of the tree.
     private boolean isBuilt; //Check for tree build status. False if tree is initialized but not built, true if tree is initialized and built.
     private final double threshDistance; //Threshold distance.
     private static final int nToss = 10; //Number of tosses before threshold distance increase.
@@ -135,8 +135,8 @@ public class ArterialTree extends NelderMeadOptimizer{
     }
 
     private double addBif(Long where, Point iNewDistal, boolean keepChanges){
-        HashMap<Long,Segment> savedState = new HashMap<>(segments);
         Segment iConn = segments.get(where);
+        boolean isLeftChild = false;
 
         Point iConnProxPrev = new Point(iConn.proximal.x, iConn.proximal.y);
         iConn.proximal.x = iConn.proximal.x + 0.5 * (iConn.distal.x - iConn.proximal.x);
@@ -144,6 +144,13 @@ public class ArterialTree extends NelderMeadOptimizer{
 
         Segment iBif = new Segment(iConnProxPrev, iConn.proximal); //find radius
         Segment iNew = new Segment(iBif.distal, iNewDistal);       //find radius
+        if(iConn.parent != null){
+            if(iConn.parent.childLeft == iConn){
+                iConn.parent.childLeft = iBif;
+                isLeftChild = true;
+            }
+            else iConn.parent.childRight = iBif;
+        }
         iBif.parent = iConn.parent;
         iConn.parent = iBif;
         iNew.parent = iBif;
@@ -167,13 +174,34 @@ public class ArterialTree extends NelderMeadOptimizer{
 
         rescaleTree();
         double target = getTarget();
-        if(!keepChanges) segments = savedState;
+        if(!keepChanges) {
+            iConn.parent = iBif.parent;
+            if(iConn.parent != null){
+                if(isLeftChild) iConn.parent.childLeft = iConn;
+                else iConn.parent.childRight = iConn;
+            }
+            iConn.proximal = iConnProxPrev;
+            segments.remove(iBif.index);
+            segments.remove(iNew.index);
+            rescaleTree();
+        }
         return target;
     }
 
     private double addBifOptimal(Point iNewDistal, boolean keepChanges){
         long optimal = findOptimalCandidate(iNewDistal);
         return addBif(optimal,iNewDistal,keepChanges);
+    }
+
+    private long getRoot(){
+        long root = 0;
+        for(Segment s: segments.values()){
+            if(s.parent == null){
+                root = s.index;
+                break;
+            }
+        }
+        return root;
     }
 
     private double childRadiiRatio(double flowi, double flowj, double resistancei, double resistancej){
@@ -215,18 +243,19 @@ public class ArterialTree extends NelderMeadOptimizer{
     }
 
     private void calculateRadii(Segment segment, double radius){
+        if(segment == null) return;
+        segment.radius = radius;
         if(segment.childLeft != null) {
             calculateRadii(segment.childLeft, segment.radius * segment.leftRatio);
             calculateRadii(segment.childRight, segment.radius * segment.rightRatio);
         }
-        segment.radius = radius;
     }
 
     private void rescaleTree(){
-        Segment root = segments.get(1L);
-        while(root.parent != null) root = root.parent;
-        segmentRescale(root);
+        Segment root = segments.get(getRoot());
+        if(root == null) return;
 
+        segmentRescale(root);
         root.radius = rootRadius(root.resistance, root.flow(params.perfFlow/params.nTerminal), params.perfPress-params.termPress);
         calculateRadii(root.childLeft, root.radius * root.leftRatio);
         calculateRadii(root.childRight, root.radius * root.rightRatio);
@@ -329,6 +358,6 @@ public class ArterialTree extends NelderMeadOptimizer{
 }
 
 //TODO:
-//visualization fix
-//comments
-//candidate selection
+// test optimal candidate selection.
+// visualization fix.
+// comments and report update.
