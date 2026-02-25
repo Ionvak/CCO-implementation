@@ -188,9 +188,9 @@ public class ArterialTree extends NelderMeadOptimizer{
         return target;
     }
 
-    private double addBifOptimal(Point iNewDistal, boolean keepChanges){
+    private void addBifOptimal(Point iNewDistal){
         long optimal = findOptimalCandidate(iNewDistal);
-        return addBif(optimal,iNewDistal,keepChanges);
+        addBif(optimal,iNewDistal,true);
     }
 
     private long getRoot(){
@@ -284,7 +284,7 @@ public class ArterialTree extends NelderMeadOptimizer{
     public void buildTree(){
         initRoot();
         while(kTerm < params.nTerminal)
-            addBifOptimal(newDistal(),true);
+            addBifOptimal(newDistal());
         isBuilt = true;
     }
 
@@ -358,6 +358,6 @@ public class ArterialTree extends NelderMeadOptimizer{
 }
 
 //TODO:
+// check for intersection.
 // test optimal candidate selection.
-// visualization fix.
 // comments and report update.
