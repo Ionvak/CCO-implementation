@@ -7,11 +7,11 @@ import java.util.Random;
 import java.lang.Math;
 
 public class ArterialTree extends NelderMeadOptimizer{
+    private static final int nToss = 1000; //Number of tosses before threshold distance increase.
     private final TreeParams params; //Physical parameters of the tree
     private  final HashMap<Long, Segment> segments; //Hashmap storing all segments of the tree.
     private boolean isBuilt; //Check for tree build status. False if tree is initialized but not built, true if tree is initialized and built.
-    private final double threshDistance; //Threshold distance.
-    private static final int nToss = 10; //Number of tosses before threshold distance increase.
+    private  double threshDistance; //Threshold distance.
     private int kTerm; //Number of terminal segments in supporting circle.
     private int kTot; //Number of segments in supporting circle.
     private Point movedPoint;
@@ -22,8 +22,7 @@ public class ArterialTree extends NelderMeadOptimizer{
         isBuilt = false;
         kTot = 1;
         kTerm = 1;
-        double supportArea = Math.PI * Math.pow(parameters.perfRadius, 2) / parameters.nTerminal;
-        threshDistance = 0.05 * Math.sqrt(supportArea / kTerm);
+        threshDistance = Math.sqrt(Math.PI * Math.pow(parameters.perfRadius, 2) / kTerm);
     }
 
     private double findCritDistance(Segment segment, Point point){
@@ -138,7 +137,9 @@ public class ArterialTree extends NelderMeadOptimizer{
         Segment iConn = segments.get(where);
         boolean isLeftChild = false;
 
-        Point iConnProxPrev = new Point(iConn.proximal.x, iConn.proximal.y);
+
+        Point iConnProxPrev = iConn.proximal;
+        iConn.proximal = new Point(iConnProxPrev.x, iConnProxPrev.y);
         iConn.proximal.x = iConn.proximal.x + 0.5 * (iConn.distal.x - iConn.proximal.x);
         iConn.proximal.y = iConn.proximal.y + 0.5 * (iConn.distal.y - iConn.proximal.y);
 
@@ -162,6 +163,7 @@ public class ArterialTree extends NelderMeadOptimizer{
         if(keepChanges) {
             kTot = kTot + 2;
             kTerm++;
+            threshDistance = Math.sqrt(Math.PI * Math.pow(params.perfRadius, 2) / kTerm);
         }
 
         movedPoint = iBif.distal;
@@ -327,7 +329,7 @@ public class ArterialTree extends NelderMeadOptimizer{
 
     public double[][] getSeries(){
         int count = 0;
-        double[][] series = new double[2][2 * segments.size()];
+        double[][] series = new double[2][3 * segments.size()];
         for(Segment s: segments.values()){
             series[0][count] = s.proximal.x;
             series[1][count] = s.proximal.y;
@@ -335,29 +337,11 @@ public class ArterialTree extends NelderMeadOptimizer{
             series[0][count] = s.distal.x;
             series[1][count] = s.distal.y;
             count++;
+            series[0][count] = s.radius;
+            series[1][count] = 0.0;
+            count++;
         }
-        return series;
-    }
-
-    public double[][] getPerfArea(){
-
-        int PRECISION = 300;
-        double phi;
-        double phi_step = 2*Math.PI / PRECISION;
-        double[][] series = new double[2][2 * PRECISION];
-
-        for(int i = 0; i < 2 * PRECISION; i++){
-            phi = i * phi_step;
-            series[0][i] = params.perfRadius * Math.sin(phi);
-            series[1][i] = params.perfRadius * Math.cos(phi);
-        }
-
         return series;
     }
 
 }
-
-//TODO:
-// check for intersection.
-// test optimal candidate selection.
-// comments and report update.
