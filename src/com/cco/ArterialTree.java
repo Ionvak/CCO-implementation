@@ -7,14 +7,14 @@ import java.util.Random;
 import java.lang.Math;
 
 public class ArterialTree extends NelderMeadOptimizer{
-    private static final int nToss = 1000; //Number of tosses before threshold distance increase.
-    private final TreeParams params; //Physical parameters of the tree
+    private static final int nToss = 1000; //Number of toss failures before the threshold distance increase.
+    private final TreeParams params; //Physical parameters of the tree.
     private  final HashMap<Long, Segment> segments; //Hashmap storing all segments of the tree.
-    private boolean isBuilt; //Check for tree build status. False if tree is initialized but not built, true if tree is initialized and built.
-    private  double threshDistance; //Threshold distance.
-    private int kTerm; //Number of terminal segments in supporting circle.
-    private int kTot; //Number of segments in supporting circle.
-    private Point movedPoint;
+    private boolean isBuilt; //A check for the tree build status. False if tree is initialized but not built, true if tree is initialized and built.
+    private  double threshDistance; //The threshold distance.
+    private int kTerm; //The number of terminal segments in the tree.
+    private int kTot; //The total number of segments in the tree.
+    private Point movedPoint; //The shared midpoint in the bifurcation. Used in the bifurcation optimization process.
 
     public ArterialTree(TreeParams parameters) {
         params = parameters;
@@ -25,6 +25,18 @@ public class ArterialTree extends NelderMeadOptimizer{
         threshDistance = Math.sqrt(Math.PI * Math.pow(parameters.perfRadius, 2) / kTerm);
     }
 
+    /**
+     * Calculates the critical distance between a point and a segment. If the
+     * point lies along the segment (the projection distance is between 0 (inclusive)
+     * and 1 (inclusive)) then the critical distance is the orthogonal distance,
+     * otherwise it's the endpoint distance.
+     * @param segment
+     * The segment from which the critical distance is calculated.
+     * @param point
+     * The point to which the distance is calculated.
+     * @return
+     * The critical distance between the segment and the point.
+     */
     private double findCritDistance(Segment segment, Point point){
         double dCrit;
         double dProjection = findProjection(segment, point);
@@ -35,6 +47,15 @@ public class ArterialTree extends NelderMeadOptimizer{
         return dCrit;
     }
 
+    /**
+     * Calculates the projection distance between a point and a segment.
+     * @param segment
+     * The segment from which the critical distance is calculated.
+     * @param point
+     * The point to which the distance is calculated.
+     * @return
+     * The projection distance between the segment and the point.
+     */
     private double findProjection(Segment segment, Point point){
         return (
                 ((segment.proximal.x - segment.distal.x) * (point.x - segment.distal.x)) +
@@ -43,6 +64,16 @@ public class ArterialTree extends NelderMeadOptimizer{
                 Math.pow(segment.length(),2);
     }
 
+    /**
+     * Calculates the orthogonal distance between a point of interest and an existing
+     * segment within the tree.
+     * @param segment
+     * The existing segment from which the critical distance is calculated.
+     * @param point
+     * The point to which the distance is calculated.
+     * @return
+     * The orthogonal distance between the segment and the point.
+     */
     private double findOrthogonal(Segment segment, Point point){
         return Math.abs(
                 ((-segment.proximal.y + segment.distal.y) * (point.x - segment.distal.x)) +
@@ -51,6 +82,17 @@ public class ArterialTree extends NelderMeadOptimizer{
                 segment.length();
     }
 
+    /**
+     * Calculates the endpoint distance between a point and a
+     * segment. Returns the smaller of the two distances between the segment's
+     * two endpoints and the parameter.
+     * @param segment
+     * The segment from which the critical distance is calculated.
+     * @param point
+     * The point to which the distance is calculated.
+     * @return
+     * The orthogonal distance between the segment and the point.
+     */
     private double findEndpoints(Segment segment, Point point){
         return Math.min(
                 Math.sqrt( Math.pow(point.x - segment.distal.x, 2) +
@@ -61,6 +103,11 @@ public class ArterialTree extends NelderMeadOptimizer{
         );
     }
 
+    /**
+     * Generates and returns a random point within the perfusion area.
+     * @return
+     * The generated random point.
+     */
     private Point toss(){
         double radius = params.perfRadius;
         Random rand = new Random();
@@ -70,6 +117,15 @@ public class ArterialTree extends NelderMeadOptimizer{
         return new Point(x,y);
     }
 
+    /**
+     * Generates and returns a random point within the perfusion area, with
+     * the additional criteria that the critical distance between the generated point
+     * and any of the existing tree segments be more than the threshold distance. If the
+     * generation fails nToss many times, the threshold distance is decreased by 10%, and the count
+     * begins again from 0.
+     * @return
+     * The generated random point.
+     */
     private Point newDistal(){
         boolean invalidDistal = true;
         int loopCount = 0;
@@ -80,11 +136,13 @@ public class ArterialTree extends NelderMeadOptimizer{
         while(invalidDistal){
             proposedDistal = toss();
             invalidDistal = false;
+            //check for the threshold distance criteria.
             for(Segment s: segments.values()){
                 critDistance = findCritDistance(s, proposedDistal);
                 if(critDistance < threshDist)
                     invalidDistal = true;
             }
+            //check if number of tosses has reached the maximum number of failures.
             loopCount++;
             if(loopCount == nToss){
                 threshDist -= threshDistance * 0.1;
@@ -95,18 +153,31 @@ public class ArterialTree extends NelderMeadOptimizer{
         return proposedDistal;
     }
 
+    /**
+     * Initializes the root segment within the tree.
+     */
     private void initRoot(){
         Random rand = new Random();
         double perfRadius = params.perfRadius;
         double x = rand.nextDouble() * (2 * perfRadius) -  perfRadius;
         double y = Math.sqrt(Math.pow(perfRadius, 2) - Math.pow(x, 2));
-        if(rand.nextDouble() - 0.5 < 0) y *= -1;
+        if(rand.nextDouble() - 0.5 < 0) y *= -1; //randomly decide if the root should be in the upper or lower half-circle.
         Point rootProximal = new Point(x,y);
         Point rootDistal = newDistal();
         Segment root = new Segment(rootProximal, rootDistal);
         segments.put(root.index, root);
     }
 
+    /**
+     * Finds and returns the optimal segment for a bifurcation (one yielding the lowest target value)
+     * from among the 20 closest segments. The bifurcation
+     * in question is the one leading to a new segment with a distal endpoint at the method parameter.
+     * If the tree has at least 20 segments, all the segments are possible candidates.
+     * @param distal
+     * The distal endpoint of the new segment to be added in the bifurcation.
+     * @return
+     * The index of the selected optimal segment.
+     */
     private long findOptimalCandidate(Point distal){
         ArrayList<Double> distances = new ArrayList<>();
         List<Double> candidateDistances;
@@ -115,15 +186,18 @@ public class ArterialTree extends NelderMeadOptimizer{
         long optimalSegment = 0;
         double target;
 
+        //calculate all the segment distances and find the lowest 20
         for(Segment s: segments.values())
             distances.add(findCritDistance(s,distal));
         distances.sort(null);
         candidateDistances = (distances.size() > 20) ? distances.subList(0,20) : distances;
 
+        //map the corresponding segments to the 20 lowest distances
         for(Segment s: segments.values())
             if(candidateDistances.contains(findCritDistance(s,distal)))
                 candidates.add(s);
 
+        //from among the 20 candidate segments, find the one that minimizes the target function
         for(Segment s: candidates)
             if((target = addBif(s.index,distal,false)) < minTarget){
                 minTarget = target;
@@ -133,16 +207,31 @@ public class ArterialTree extends NelderMeadOptimizer{
         return optimalSegment;
     }
 
+    /**
+     * Adds a bifurcation to the tree, and calculates the value of the target function
+     * after adding the bifurcation.
+     * @param where
+     * The existing segment at which the bifurcation should be added.
+     * @param iNewDistal
+     * The distal endpoint of the new segment to be added in the bifurcation.
+     * @param keepChanges
+     * Decides whether the method should permanently alter the tree, or revert the changes
+     * after the bifurcation is added.
+     * @return
+     * The target function value of the tree after adding the bifurcation.
+     */
     private double addBif(Long where, Point iNewDistal, boolean keepChanges){
         Segment iConn = segments.get(where);
         boolean isLeftChild = false;
 
-
+        //store a reference to the proximal point of iConn previous to the bifurcation
         Point iConnProxPrev = iConn.proximal;
         iConn.proximal = new Point(iConnProxPrev.x, iConnProxPrev.y);
+        //shrink iConn by half towards its distal end
         iConn.proximal.x = iConn.proximal.x + 0.5 * (iConn.distal.x - iConn.proximal.x);
         iConn.proximal.y = iConn.proximal.y + 0.5 * (iConn.distal.y - iConn.proximal.y);
 
+        //create, add, and link iBif and iNew to the tree
         Segment iBif = new Segment(iConnProxPrev, iConn.proximal); //find radius
         Segment iNew = new Segment(iBif.distal, iNewDistal);       //find radius
         if(iConn.parent != null){
@@ -155,17 +244,19 @@ public class ArterialTree extends NelderMeadOptimizer{
         iBif.parent = iConn.parent;
         iConn.parent = iBif;
         iNew.parent = iBif;
-        iBif.childLeft = iBif.distal.x > iNew.distal.x ? iNew : iConn;
-        iBif.childRight = iBif.distal.x <= iNew.distal.x ? iNew : iConn;
-
+        iBif.childLeft = iBif.distal.x > iNew.distal.x ? iNew : iConn;  //check to decide which segment (iNew or iConn) should be
+        iBif.childRight = iBif.distal.x <= iNew.distal.x ? iNew : iConn;//the left child of iBif
         segments.put(iBif.index, iBif);
         segments.put(iNew.index, iNew);
+
+        //if the bifurcation should be kept permanently, update the tree attributes
         if(keepChanges) {
             kTot = kTot + 2;
             kTerm++;
             threshDistance = Math.sqrt(Math.PI * Math.pow(params.perfRadius, 2) / kTerm);
         }
 
+        //optimize the bifurcation
         movedPoint = iBif.distal;
         iConn.proximal = movedPoint;
         iNew.proximal = movedPoint;
@@ -174,8 +265,10 @@ public class ArterialTree extends NelderMeadOptimizer{
         movedPoint.x = optimalPoint[0];
         movedPoint.y = optimalPoint[1];
 
+        //rescale the tree and get the target function value before the changes are possibly reverted
         rescaleTree();
         double target = getTarget();
+        //if the bifurcation should be reverted, undo all the previous changes
         if(!keepChanges) {
             iConn.parent = iBif.parent;
             if(iConn.parent != null){
@@ -190,11 +283,23 @@ public class ArterialTree extends NelderMeadOptimizer{
         return target;
     }
 
+    /**
+     * An extension of the addBif method wherein the bifurcation is always added
+     * to the optimal segment (the one minimizing the target function) and the changes
+     * are always permanent.
+     * @param iNewDistal
+     * The distal endpoint of the new segment to be added in the bifurcation.
+     */
     private void addBifOptimal(Point iNewDistal){
         long optimal = findOptimalCandidate(iNewDistal);
         addBif(optimal,iNewDistal,true);
     }
 
+    /**
+     * Returns the root segment of the tree.
+     * @return
+     * The index of the root segment of the tree.
+     */
     private long getRoot(){
         long root = 0;
         for(Segment s: segments.values()){
@@ -206,19 +311,68 @@ public class ArterialTree extends NelderMeadOptimizer{
         return root;
     }
 
+    /**
+     * Calculates and returns the child-to-child radius ratio of the two child segments. Used in the
+     * tree rescaling process.
+     * @param flowi
+     * The flow of the child segment in the nominator.
+     * @param flowj
+     * The flow of the child segment in the denominator.
+     * @param resistancei
+     * The reduced resistance of the child segment in the nominator.
+     * @param resistancej
+     * The reduced resistance of the child segment in the denominator.
+     * @return
+     * The radius ratio of the two child segments.
+     */
     private double childRadiiRatio(double flowi, double flowj, double resistancei, double resistancej){
         return Math.pow((flowi * resistancei)/(flowj * resistancej), 0.25);
     }
 
+    /**
+     * Calculates and returns the parent-to-child radius ratio of the segment and one of its child segments. The order
+     * of the segments in the resulting ratio depends on their order in the parameter (ri/rj => rj/rp, where i,j
+     * indicate child segments, and p indicates the parent segment). Used in the tree rescaling process.
+     * @param childRatio
+     * The radius ratio of the two child segments.
+     * @return
+     * The radius ratio of the segment and one of its child segments.
+     */
     private double parentRadiiRatio(double childRatio){
         return Math.pow(1 + Math.pow(childRatio, 3), -1.0/3);
     }
 
-    private double rootRadius(double rootResistance, double rootFlow, double pressDiff){
+    /**
+     * Calculates and returns the radius of the root segment of the tree. Used in the tree rescaling process.
+     * @param rootResistance
+     * The reduced resistance of the root segment.
+     * @param rootFlow
+     * The flow of the root segment.
+     * @return
+     * The radius of the root segment of the tree.
+     */
+    private double rootRadius(double rootResistance, double rootFlow){
+        double pressDiff = params.perfPress-params.termPress;
         return Math.pow(rootResistance * rootFlow / pressDiff, 1.0/4);
     }
 
-    private double reducedResistance(double viscosity, double length, double leftRatio, double rightRatio, double leftResistance, double rightResistance){
+    /**
+     * Calculates and returns the reduced resistance value. Used in the tree rescaling process.
+     * @param length
+     * The length of the segment.
+     * @param leftRatio
+     * The radius ratio of the segment and its left child.
+     * @param rightRatio
+     * The radius ratio of the segment and its right child.
+     * @param leftResistance
+     * The reduced resistance value of the left child segment.
+     * @param rightResistance
+     * The reduced resistance value of the right child segment.
+     * @return
+     * The reduced resistance value of the segment.
+     */
+    private double reducedResistance(double length, double leftRatio, double rightRatio, double leftResistance, double rightResistance){
+        double viscosity = params.viscosity;
         if(leftResistance == 0){
             return (8 * viscosity * length)/(Math.PI);
         }
@@ -226,6 +380,14 @@ public class ArterialTree extends NelderMeadOptimizer{
                 Math.pow(Math.pow(leftRatio,4) / (leftResistance) + Math.pow(rightRatio,4) / (rightResistance) ,-1);
     }
 
+    /**
+     * Goes through the tree and calculates and sets the values of the child-to-child radius ratios, the parent-to-child
+     * radius ratios, and the reduced resistances. This method prepares the tree for the final step in the calculation
+     * of the radii done by the {@code calculateRadii} method in which the actual segment radii are calculated.
+     * Used in the tree rescaling process.
+     * @param segment
+     * The segment, starting from which, the top-down rescaling process should begin.
+     */
     private void segmentRescale(Segment segment){
         Segment left = segment.childLeft;
         Segment right = segment.childRight;
@@ -235,15 +397,22 @@ public class ArterialTree extends NelderMeadOptimizer{
             segmentRescale(left);
             segmentRescale(right);
             segment.childRatio = childRadiiRatio(left.flow(termFlow), right.flow(termFlow), left.resistance, right.resistance);
-            segment.leftRatio = parentRadiiRatio(1 / segment.childRatio);
+            segment.leftRatio = parentRadiiRatio(Math.pow(segment.childRatio, -1));
             segment.rightRatio = parentRadiiRatio(segment.childRatio);
-            segment.resistance = reducedResistance(params.viscosity, segment.length(), segment.leftRatio, segment.rightRatio, left.resistance, right.resistance);
+            segment.resistance = reducedResistance(segment.length(), segment.leftRatio, segment.rightRatio, left.resistance, right.resistance);
         }
         else{
-            segment.resistance = reducedResistance(params.viscosity, segment.length(),0,0,0,0);
+            segment.resistance = reducedResistance(segment.length(),0,0,0,0);
         }
     }
 
+    /**
+     * Goes through the tree and calculates and sets the values of the segment radii. Used in the tree rescaling process.
+     * @param segment
+     * The segment, starting from which, the top-down radii calculation process should begin.
+     * @param radius
+     * The radius to be assigned to the parameter segment.
+     */
     private void calculateRadii(Segment segment, double radius){
         if(segment == null) return;
         segment.radius = radius;
@@ -253,16 +422,31 @@ public class ArterialTree extends NelderMeadOptimizer{
         }
     }
 
+    /**
+     * A wrapper method combining {@code segmentRescale}, {@code rootRadius} and {@code calculateRadii} starting
+     * from the root, which rescales the whole tree. The rescaling process is used for the recalculation of all
+     * the quantitative segment class attributes after any change in the tree structure that would affect these
+     * attributes, such as a bifurcation addition, a change in the topology, etc.
+     */
     private void rescaleTree(){
         Segment root = segments.get(getRoot());
         if(root == null) return;
 
         segmentRescale(root);
-        root.radius = rootRadius(root.resistance, root.flow(params.perfFlow/params.nTerminal), params.perfPress-params.termPress);
+        root.radius = rootRadius(root.resistance, root.flow(params.perfFlow/params.nTerminal));
         calculateRadii(root.childLeft, root.radius * root.leftRatio);
         calculateRadii(root.childRight, root.radius * root.rightRatio);
     }
 
+    /**
+     * Used by the {@code fminsearch} method of the {@code NelderMeadOptimizer} class to
+     * find the value of the target/objective function after moving the optimized point to the location specified
+     * by the parameter.
+     * @param x
+     * Vector indicating the desired coordinates for the optimized point.
+     * @return
+     * The target function value of the tree.
+     */
     @Override
     protected double objectiveFunction(double[] x) {
         movedPoint.x = x[0];
@@ -274,7 +458,11 @@ public class ArterialTree extends NelderMeadOptimizer{
     // End of internal methods. Beginning of tree interface.
 
 
-
+    /**
+     * Calculates and returns the target function value of the tree.
+     * @return
+     * The target function value of the tree.
+     */
     public double getTarget(){
         double sum = 0;
         for(Segment s: segments.values()) {
@@ -283,6 +471,11 @@ public class ArterialTree extends NelderMeadOptimizer{
         return sum;
     }
 
+    /**
+     * Builds the tree by adding segments until the number of terminal
+     * segments is equal to the number specified in the tree parameters (nTerminal value).
+     * The segments are always added into the optimal locations.
+     */
     public void buildTree(){
         initRoot();
         while(kTerm < params.nTerminal)
@@ -290,6 +483,9 @@ public class ArterialTree extends NelderMeadOptimizer{
         isBuilt = true;
     }
 
+    /**
+     * Prints a detailed summary of the tree content to the terminal.
+     */
     public void treeDetails(){
         if(!isBuilt){
             System.out.println("Tree is not built. Nothing to display.");
@@ -300,8 +496,8 @@ public class ArterialTree extends NelderMeadOptimizer{
         String segString;
         String result;
         for(Segment s: segments.values()){
-            if(s.parent == null) System.out.println("(root)");
-            if(s.childLeft == null) System.out.println("(terminal)");
+            if(s.parent == null) System.out.println("(root)"); //add a marker at the top indicating that this is the root segment
+            if(s.childLeft == null) System.out.println("(terminal)");//add a marker at the top indicating that this a terminal segment
             System.out.println("Segment " + s.index + ":");
             segString =
                     """
@@ -327,6 +523,15 @@ public class ArterialTree extends NelderMeadOptimizer{
         System.out.println("Target function value: " + getTarget() + "\n");
     }
 
+    /**
+     * Returns a 2D array containing information about all the segments within the tree.
+     * The 2D array has the following form:
+     * Row 1: s1_prox_x, s1_dist_x, s1_radius, s2_prox_x, s2_dist_x, s2_radius ...
+     * ; Row 2: s1_prox_y, s1_dist_y, 0, s2_prox_y, s2_dist_y, 0 ...
+     * (the 0 values are added for padding).
+     * @return
+     * A 2D array containing information about all the segments within the tree
+     */
     public double[][] getSeries(){
         int count = 0;
         double[][] series = new double[2][3 * segments.size()];

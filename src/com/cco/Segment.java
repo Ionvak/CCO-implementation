@@ -2,9 +2,7 @@ package com.cco;
 
 import java.lang.Math;
 
-/**
- * This class represents a single segment in the arterial tree.
- */
+ // This class represents a single segment in the arterial tree.
 
 class Segment {
     private static long INDEX = 1; //Variable used to generate Indexes.
@@ -27,30 +25,41 @@ class Segment {
         this.index = INDEX++;
     }
 
-    public Segment(Segment sourceSegment) {
-        proximal = sourceSegment.proximal;
-        distal = sourceSegment.distal;
-        childLeft = sourceSegment.childLeft;
-        childRight = sourceSegment.childRight;
-        parent = sourceSegment.parent;
-        index = INDEX++;
-    }
-
-    //Get the total Blood volume within a given segment
+    /**
+     * Calculates and returns the volume of the segment.
+     * @return
+     * The volume of the segment.
+     */
     double volume() {
         return Math.PI * Math.pow(radius, 2) * length();
     }
 
-    //Get the length of the segment. It is the cartesian distance between its distal and proximal points.
+    /**
+     * Calculates and returns the length of the segment.
+      * @return
+     * The length of the segment.
+     */
     double length() {
         return Math.sqrt( Math.pow(proximal.x - distal.x, 2) +
                 Math.pow(proximal.y - distal.y, 2) );
     }
 
-    double flow( double termFlow) {
+    /**
+     * Calculates and returns the flow of the segment.
+     * @param termFlow
+     * The terminal flow of the tree in which the segment resides.
+     * @return
+     * The flow of the segment.
+     */
+    double flow(double termFlow) {
         return nDIST() * termFlow;
     }
 
+    /**
+     * Calculates and returns the number of terminal segments downstream of the segment.
+     * @return
+     * The number of terminal segments downstream of the segment
+     */
     private int nDIST() {
         if (childLeft == null)
             return 1;
