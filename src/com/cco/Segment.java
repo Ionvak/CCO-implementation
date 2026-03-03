@@ -12,11 +12,11 @@ class Segment {
     Segment childRight = null; //index of the right child of the segment. null means the segment has no right child.
     Point proximal; //proximal point of the segment.
     Point distal; //distal point of the segment.
-    double radius = 0; // radius of the segment.
-    double resistance = 0;
-    double childRatio = 0;
-    double rightRatio = 0;
-    double leftRatio = 0;
+    double radius = 0; //radius of the segment.
+    double resistance = 0; //reduced resistance of the segment.
+    double childRatio = 0; //radius ratio of the left child to the right child.
+    double rightRatio = 0; //radius ratio of the right child to segment.
+    double leftRatio = 0; //radius ratio of the left child to segment.
 
 
     public Segment(Point proximal, Point distal) {
