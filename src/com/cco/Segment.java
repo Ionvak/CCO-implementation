@@ -56,6 +56,19 @@ class Segment {
     }
 
     /**
+     * Calculates and returns the pressure difference in the segment.
+     * @param viscosity
+     * The viscosity of the tree in which the segment resides.
+     * @param termFlow
+     * The terminal flow of the tree in which the segment resides.
+     * @return
+     * The pressure difference in the segment.
+     */
+    double pressDiff(double viscosity, double termFlow){
+        return (8 * viscosity * length() * flow(termFlow))/(Math.PI * radius);
+    }
+
+    /**
      * Calculates and returns the number of terminal segments downstream of the segment.
      * @return
      * The number of terminal segments downstream of the segment
