@@ -65,7 +65,7 @@ class Segment {
      * The pressure difference in the segment.
      */
     double pressDiff(double viscosity, double termFlow){
-        return (8 * viscosity * length() * flow(termFlow))/(Math.PI * radius);
+        return (8 * viscosity * length() * flow(termFlow))/ (Math.PI * Math.pow(radius, 4));
     }
 
     /**
