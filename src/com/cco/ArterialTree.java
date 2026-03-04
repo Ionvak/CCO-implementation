@@ -103,6 +103,50 @@ public class ArterialTree extends NelderMeadOptimizer{
         );
     }
 
+//    private boolean testIntersection(Point distal){
+//        Point midPoint = new Point(0,0);
+//        Point relDistExisting = new Point(0,0);
+//        Point relDistNew = new Point(0,0);
+//        Point proxDiff = new Point(0,0);
+//        double relDistalCrossProd;
+//        double scalarExisting;
+//        double scalarNew;
+//        double lowerBound;
+//        double higherBound;
+//        Segment newSegment = new Segment(new Point(0,0), new Point(0,0));
+//        for(Segment s: segments.values()){
+//            midPoint.x = s.proximal.x + 0.5 * (s.distal.x - s.proximal.x);
+//            midPoint.y = s.proximal.y + 0.5 * (s.distal.y - s.proximal.y);
+//
+//            newSegment.proximal.x = midPoint.x;
+//            newSegment.proximal.y = midPoint.y;
+//            newSegment.distal.x = distal.x;
+//            newSegment.distal.y = distal.y;
+//
+//            relDistExisting =  Point.diff(s.distal, s.proximal);
+//            relDistNew =  Point.diff(newSegment.distal, newSegment.proximal);
+//            proxDiff = Point.diff(newSegment.proximal, s.proximal);
+//            relDistalCrossProd = Point.crossProduct(relDistExisting, relDistNew);
+//            scalarExisting = Point.crossProduct(proxDiff, relDistNew) / relDistalCrossProd;
+//            scalarNew = Point.crossProduct(proxDiff, relDistExisting) / relDistalCrossProd;
+//
+//            if(relDistalCrossProd == 0){
+//                lowerBound = Point.dotProduct(proxDiff, relDistExisting) / Point.dotProduct(relDistExisting, relDistExisting);
+//                higherBound = Point.dotProduct(relDistNew, relDistExisting) / Point.dotProduct(relDistExisting, relDistExisting);
+//                if(higherBound > 0){
+//                    if(lowerBound >= 0 || higherBound <= 1) return true;
+//                }
+//                else{
+//                    if(lowerBound <= 1 || higherBound >= 0) return true;
+//                }
+//            }
+//            else{
+//                if(scalarExisting >=0 && scalarExisting <= 1 && scalarNew >=0 && scalarNew <= 1) return true;
+//            }
+//        }
+//        return false;
+//    }
+
     /**
      * Generates and returns a random point within the perfusion area.
      * @return
@@ -455,6 +499,45 @@ public class ArterialTree extends NelderMeadOptimizer{
         return getTarget();
     }
 
+    /**
+     * A recursive method ensuring that all segment paths downstream from the segment parameter and ending with the
+     * distal segments have a pressure drop of: (perfusion flow - terminal flow) +/- tolerance.
+     * @param segment
+     * The segment, starting from which, the top-down path pressure drop testing process should begin.
+     * @param pressDifTot
+     * The accumulative value of the path pressure drop.
+     * @param tol
+     * Tested path pressure drop tolerance value.
+     */
+    private void testPressDiffInternal(Segment segment, double pressDifTot, double tol){
+        double pressDrop = segment.pressDiff(params.viscosity, params.perfFlow/params.nTerminal);
+        double currTot = pressDifTot - pressDrop;
+        if(segment.childLeft != null){
+            testPressDiffInternal(segment.childLeft, currTot, tol);
+            testPressDiffInternal(segment.childRight, currTot, tol);
+        }
+        else {
+            if((params.termPress * (1-tol))  > currTot || currTot > (params.termPress * (1+tol))){
+                System.out.println("Incorrect pressure at " + segment.index);
+                System.out.println("Pressure value: " + currTot);
+                System.out.println("Segment " + segment.index + " pressure drop: " + pressDrop);
+            }
+        }
+    }
+
+    /**
+     * A wrapper for the {@code testPressDiffInternal} method applying the method to the entire tree structure.
+     * @param tol
+     * Tested path pressure drop tolerance value.
+     */
+    private void testPressDiff(double tol){
+        System.out.println("Perfusion pressure: " + params.perfPress);
+        System.out.println("Terminal pressure: " + params.termPress);
+        System.out.println("Lower test limit: " + (params.termPress * (1-tol)));
+        System.out.println("Higher test limit: " + (params.termPress * (1+tol)));
+        Segment root = segments.get(getRoot());
+        testPressDiffInternal(root, params.perfPress, tol);
+    }
     // End of internal methods. Beginning of tree interface.
 
 
@@ -521,6 +604,7 @@ public class ArterialTree extends NelderMeadOptimizer{
             System.out.println("\n");
         }
         System.out.println("Target function value: " + getTarget() + "\n");
+        testPressDiff(0.0001);
     }
 
     /**
