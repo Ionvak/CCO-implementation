@@ -526,8 +526,10 @@ public class ArterialTree extends NelderMeadOptimizer{
         initRoot();
         while(kTerm < params.nTerminal) {
             addBifOptimal(newDistal());
-            saveState();
+            if(params.nTerminal >= 4 && kTerm % (params.nTerminal / 4) == 0)
+                saveState();
         }
+        if(params.nTerminal < 4) saveState();
         isBuilt = true;
     }
 
@@ -577,14 +579,11 @@ public class ArterialTree extends NelderMeadOptimizer{
      */
     public void saveState() {
         double[][] series = getSeries();
-        try (
-                FileWriter exportWriter = new FileWriter("src/tree_data.txt", true)) {
-            exportWriter.write(Arrays.toString(series[0]) +
-                    "\n" +
-                    Arrays.toString(series[1]));
-            System.out.println("Successfully wrote tree state with: " + kTot + " segments total.");
-        } catch (
-                IOException e) {
+        try (FileWriter exportWriter = new FileWriter("src/tree_data.txt", true)) {
+            exportWriter.write(Arrays.toString(series[0]) + "\n" + Arrays.toString(series[1]) + "\n");
+            System.out.println("Successfully wrote tree state with: " + kTerm + " terminal segments.");
+        }
+        catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
