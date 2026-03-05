@@ -9,4 +9,4 @@
 # Editor-based HTTP Client requests
 /httpRequests/
 
-*.txt
+src/tree_data.txt
