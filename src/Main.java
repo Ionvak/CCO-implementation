@@ -1,9 +1,5 @@
 import com.cco.ArterialTree;
 import com.cco.TreeParams;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import java.awt.*;
 
 void main() {
 
