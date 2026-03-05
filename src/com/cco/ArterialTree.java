@@ -165,6 +165,7 @@ public class ArterialTree extends NelderMeadOptimizer{
         Point rootProximal = new Point(x,y);
         Point rootDistal = newDistal();
         Segment root = new Segment(rootProximal, rootDistal);
+        root.radius = rootRadius(reducedResistance(root.length(),0,0,0,0), params.perfFlow);
         segments.put(root.index, root);
     }
 
@@ -540,11 +541,11 @@ public class ArterialTree extends NelderMeadOptimizer{
 
         initRoot();
         while(kTerm < params.nTerminal) {
-            addBifOptimal(newDistal());
-            if(params.nTerminal >= 4 && kTerm % (params.nTerminal / 4) == 0)
+            if(params.nTerminal >= 4 && (kTerm % (params.nTerminal / 4) == 0))
                 saveState();
+            addBifOptimal(newDistal());
         }
-        if(params.nTerminal < 4) saveState();
+        saveState();
         isBuilt = true;
     }
 
