@@ -4,7 +4,7 @@ import re
 import math
 
 # Enter the filepath to the "tree_data.txt" file from the source code folder
-filepath = 'src/tree_data.txt'
+filepath = '/home/melshekh/Library/Projects/CCO-implementation/src/tree_data.txt'
 # Enter the perfusion radius (must be equivalent to the related attribute
 # in the parameters of the tree)
 perfRadius = 0.05
@@ -36,7 +36,7 @@ with open(filepath, 'r') as file:
         x = [float(a) for a in xseries]
         y = [float(a) for a in yseries]
         num_of_segments = len(x)//3
-        num_of_terminals = num_of_segments//2
+        num_of_terminals = (num_of_segments + 1)//2
 
         # Find the maximum radius. Used for normalizing the radii values.
         max_radius = 0
@@ -46,15 +46,11 @@ with open(filepath, 'r') as file:
 
         # Plot the segments one by one. Adjust the linewidth according to the
         # segment radius. Afterwards, Plot the perfusion circle.
-        if(num_of_terminals >= 4):
-            plt.subplot(2,2,i+1)
+        plt.subplot(2,2,i+1)
         for n in range(0,len(x),3):
             plt.plot([x[n], x[n+1]], [y[n], y[n+1]], 'r', lw= line_width_range * (x[n+2] / max_radius))
         plt.plot(xarea, yarea, '-k')
         plt.axis('equal')
-        plt.title(str(1 + num_of_segments//2) + " Terminal Segments")
-
-        if(num_of_terminals < 4): break
-
+        plt.title(str(num_of_terminals) + " Terminal Segments")
 
 plt.show()
