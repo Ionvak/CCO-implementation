@@ -494,6 +494,21 @@ public class ArterialTree extends NelderMeadOptimizer{
         Segment root = segments.get(getRoot());
         testPressDiffInternal(root, params.perfPress, tol);
     }
+
+    /**
+     * Save a snapshots summary of the tree to the tree_data.txt file.
+     */
+    private void saveState() {
+        double[][] series = getSeries();
+        try (FileWriter exportWriter = new FileWriter("src/tree_data.txt", true)) {
+            exportWriter.write(Arrays.toString(series[0]) + "\n" + Arrays.toString(series[1]) + "\n");
+            System.out.println("Successfully wrote tree state with " + kTerm + " terminal segments to tree_data.txt.");
+        }
+        catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
     // End of internal methods. Beginning of tree interface.
 
 
@@ -572,21 +587,6 @@ public class ArterialTree extends NelderMeadOptimizer{
         }
         System.out.println("Target function value: " + getTarget() + "\n");
         testPressDiff(0.0001);
-    }
-
-    /**
-     * Save a snapshots summary of the tree to the tree_data.txt file.
-     */
-    public void saveState() {
-        double[][] series = getSeries();
-        try (FileWriter exportWriter = new FileWriter("src/tree_data.txt", true)) {
-            exportWriter.write(Arrays.toString(series[0]) + "\n" + Arrays.toString(series[1]) + "\n");
-            System.out.println("Successfully wrote tree state with: " + kTerm + " terminal segments.");
-        }
-        catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
     }
 
     /**
