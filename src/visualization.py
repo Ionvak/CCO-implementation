@@ -3,8 +3,8 @@ import numpy as np
 import re
 import math
 
-# Enter the filepath to the "tree_data.txt" file from the source code folder
-filepath = 'src/tree_data.txt'
+# Enter the filepath to the "tree_data.json" file from the source code folder
+filepath = 'src/tree_data.json'
 # Enter the perfusion radius (must be equivalent to the related attribute
 # in the parameters of the tree)
 perfRadius = 0.05
@@ -24,7 +24,7 @@ for i in range(0, 2 * PRECISION, 2):
 xarea = np.array(xarea)
 yarea = np.array(yarea)
 
-# Open the "tree_data.txt" file from the source code and read the exported
+# Open the "tree_data.json" file from the source code and read the exported
 # segment attributes. "x" is an array of the x coordinates of all the segment
 # points and radii. "y" is an array of the y coordinates of all the segment points.
 with open(filepath, 'r') as file:
