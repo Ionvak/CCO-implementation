@@ -1,6 +1,5 @@
 package com.cco;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -497,21 +496,90 @@ public class ArterialTree extends NelderMeadOptimizer{
     }
 
     /**
-     * Save a snapshots summary of the tree to the tree_data.txt file.
+     * Save a snapshots summary of the tree to the tree_data.json file.
      */
     private void saveState() {
-        double[][] series = getSeries();
-        try (FileWriter exportWriter = new FileWriter("src/tree_data.txt", true)) {
-            exportWriter.write(Arrays.toString(series[0]) + "\n" + Arrays.toString(series[1]) + "\n");
-            System.out.println("Successfully wrote tree state with " + kTerm + " terminal segments to tree_data.txt.");
+        try (FileWriter exportWriter = new FileWriter("src/tree_data.json", true)) {
+            exportWriter.write("{");
+            writePair("ArterialTree", "{", true, exportWriter);
+            writeParams(exportWriter);
+            exportWriter.write(", ");
+            writeSegments(exportWriter);
+            exportWriter.write("}}");
+            System.out.println("Successfully wrote tree state with " + kTerm + " terminal segments to tree_data.json.");
         }
         catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
     }
-    // End of internal methods. Beginning of tree interface.
 
+    /**
+     * Writes a basic key-value pair to the output file.
+     * @param attrName
+     * Key of the attribute to be written.
+     * @param attrVal
+     * Value of the attribute to be written.
+     * @param last
+     * Decides if the present key-value pair should be followed by a comma ({@code true} indicates it should not).
+     * @param fw
+     * FileWriter object used to write to the output file.
+     * @throws IOException
+     * Throws an IOException in the case of an error while writing the pair to the file.
+     */
+    private void writePair(String attrName, String attrVal, boolean last, FileWriter fw) throws IOException {
+        fw.write("\"" + attrName + "\"" + ":" + attrVal);
+        if(!last) fw.write(", ");
+    }
+
+    /**
+     * Writes the Segment class objects within the tree into the output file in JSON format.
+     * @param fw
+     * FileWriter object used to write to the output file.
+     * @throws IOException
+     * Throws an IOException in the case of an error while writing the pair to the file.
+     */
+    private void writeSegments(FileWriter fw) throws IOException{
+        writePair("segments", "[", true, fw);
+        int segCounter = 0;
+        int segSize = segments.size();
+        for (Segment s: segments.values()){
+            fw.write("{");
+            writePair("index", Long.toString(s.index), false, fw);
+            writePair("proximal", "[" + s.proximal.x + ", " + s.proximal.y + "]", false, fw);
+            writePair("distal", "[" + s.distal.x + ", " + s.distal.y + "]", false, fw);
+            writePair("parent", s.parent == null ? "0" : Long.toString(s.parent.index), false, fw);
+            writePair("childLeft", s.childLeft == null ? "0" : Long.toString(s.childLeft.index), false, fw);
+            writePair("childRight", s.childRight == null ? "0" : Long.toString(s.childRight.index), false, fw);
+            writePair("radius", Double.toString(s.radius), false, fw);
+            writePair("pressDif", Double.toString(s.pressDiff(params.viscosity, params.perfFlow/params.nTerminal)), true, fw);
+            fw.write("}");
+            if(segCounter != segSize - 1) fw.write(", ");
+            segCounter++;
+        }
+        fw.write("]");
+    }
+
+    /**
+     * Writes the TreeParams class object within the tree into the output file in JSON format.
+     * @param fw
+     * FileWriter object used to write to the output file.
+     * @throws IOException
+     * Throws an IOException in the case of an error while writing the pair to the file.
+     */
+    private void writeParams(FileWriter fw) throws IOException{
+        writePair("params", "{", true, fw);
+        writePair("viscosity", Double.toString(params.viscosity), false, fw);
+        writePair("bifExponent", Double.toString(params.bifExponent), false, fw);
+        writePair("perfPress", Double.toString(params.perfPress), false, fw);
+        writePair("termPress", Double.toString(params.termPress), false, fw);
+        writePair("perfFlow", Double.toString(params.perfFlow), false, fw);
+        writePair("perfRadius", Double.toString(params.perfRadius), false, fw);
+        writePair("nTerminal", Integer.toString(params.nTerminal), true, fw);
+        fw.write("}");
+    }
+
+    // End of internal methods. Beginning of tree interface.
 
     /**
      * Calculates and returns the target function value of the tree.
@@ -532,17 +600,19 @@ public class ArterialTree extends NelderMeadOptimizer{
      * The segments are always added into the optimal locations.
      */
     public void buildTree(){
-        File myObj = new File("src/tree_data.txt");
-        if (myObj.delete()) {
-            System.out.println("Deleted tree_data.txt.");
-        } else {
-            System.out.println("Failed to delete tree_data.txt.");
+        try (FileWriter exportWriter = new FileWriter("src/tree_data.json")) {
+            exportWriter.write("");
+            System.out.println("Successfully cleared tree_data.json.");
+        }
+        catch (IOException e) {
+            System.out.println("An error occurred when clearing tree_data.json.");
+            e.printStackTrace();
         }
 
         initRoot();
         while(kTerm < params.nTerminal) {
-            if(params.nTerminal >= 4 && (kTerm % (params.nTerminal / 4) == 0))
-                saveState();
+//            if(params.nTerminal >= 4 && (kTerm % (params.nTerminal / 4) == 0))
+//                saveState();
             addBifOptimal(newDistal());
         }
         saveState();
@@ -608,9 +678,6 @@ public class ArterialTree extends NelderMeadOptimizer{
             count++;
             series[0][count] = s.distal.x;
             series[1][count] = s.distal.y;
-            count++;
-            series[0][count] = s.radius;
-            series[1][count] = 0.0;
             count++;
         }
         return series;
