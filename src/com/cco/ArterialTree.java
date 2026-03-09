@@ -497,6 +497,54 @@ public class ArterialTree extends NelderMeadOptimizer{
 
     /**
      * Save a snapshots summary of the tree to the tree_data.json file.
+     * Output format example:
+     {
+        "ArterialTree": {
+            "params": {
+                 "viscosity": 0.0036,
+                 "bifExponent": 3,
+                 "perfPress": 13300,
+                 "termPress": 8380,
+                 "perfFlow": 0.00000833,
+                 "perfRadius": 0.05,
+                 "nTerminal": 2
+             },
+            "segments": [
+                 {
+                 "index": 1,
+                 "proximal": [
+                 -0.008942280176934249,
+                 0.0386698400094377
+                 ],
+                 "distal": [
+                 0.03649561632834446,
+                 0.02714225334090905
+                 ],
+                 "parent": 4,
+                 "childLeft": 0,
+                 "childRight": 0,
+                 "radius": 0.0008006839241438669,
+                 "pressDif": 4354.88218861295
+                 },
+                 {
+                 "index": 4,
+                 "proximal": [
+                 -0.014872886562317736,
+                 0.04773674942122085
+                 ],
+                 "distal": [
+                 -0.008942280176934249,
+                 0.0386698400094377
+                 ],
+                 "parent": 0,
+                 "childLeft": 5,
+                 "childRight": 1,
+                 "radius": 0.0010999852265084038,
+                 "pressDif": 565.1178113870538
+                 }
+             ]
+         }
+     }
      */
     private void saveState() {
         try (FileWriter exportWriter = new FileWriter("src/tree_data.json", true)) {
@@ -663,9 +711,8 @@ public class ArterialTree extends NelderMeadOptimizer{
     /**
      * Returns a 2D array containing information about all the segments within the tree.
      * The 2D array has the following form:
-     * Row 1: s1_prox_x, s1_dist_x, s1_radius, s2_prox_x, s2_dist_x, s2_radius ...
-     * ; Row 2: s1_prox_y, s1_dist_y, 0, s2_prox_y, s2_dist_y, 0 ...
-     * (the 0 values are added for padding).
+     * Row 1: s1_prox_x, s1_dist_x, s2_prox_x, s2_dist_x ...
+     * ; Row 2: s1_prox_y, s1_dist_y, s2_prox_y, s2_dist_y ...
      * @return
      * A 2D array containing information about all the segments within the tree
      */
