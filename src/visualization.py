@@ -4,7 +4,7 @@ import re
 import math
 
 # Enter the filepath to the "tree_data.txt" file from the source code folder
-filepath = '/home/melshekh/Library/Projects/CCO-implementation/src/tree_data.txt'
+filepath = 'src/tree_data.txt'
 # Enter the perfusion radius (must be equivalent to the related attribute
 # in the parameters of the tree)
 perfRadius = 0.05
