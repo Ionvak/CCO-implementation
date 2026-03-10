@@ -499,8 +499,8 @@ public class ArterialTree extends NelderMeadOptimizer{
      * Save a snapshots summary of the tree to the tree_data.json file.
      * Output format example:
      {
-        "ArterialTree": {
-            "params": {
+         "ArterialTree": {
+             "params": {
                  "viscosity": 0.0036,
                  "bifExponent": 3,
                  "perfPress": 13300,
@@ -509,40 +509,53 @@ public class ArterialTree extends NelderMeadOptimizer{
                  "perfRadius": 0.05,
                  "nTerminal": 2
              },
-            "segments": [
-                 {
-                 "index": 1,
-                 "proximal": [
-                 -0.008942280176934249,
-                 0.0386698400094377
-                 ],
-                 "distal": [
-                 0.03649561632834446,
-                 0.02714225334090905
-                 ],
-                 "parent": 4,
-                 "childLeft": 0,
-                 "childRight": 0,
-                 "radius": 0.0008006839241438669,
-                 "pressDif": 4354.88218861295
+            "segments": {
+                 "1": {
+                     "proximal": [
+                     0.015326466606772317,
+                     -0.04060730426257755
+                     ],
+                     "distal": [
+                     -0.03270281510664856,
+                     -0.006782058324418024
+                     ],
+                     "parent": 4,
+                     "childLeft": 0,
+                     "childRight": 0,
+                     "radius": 0.0008377909968792547,
+                     "pressDif": 4552.865020729187
                  },
-                 {
-                 "index": 4,
-                 "proximal": [
-                 -0.014872886562317736,
-                 0.04773674942122085
-                 ],
-                 "distal": [
-                 -0.008942280176934249,
-                 0.0386698400094377
-                 ],
-                 "parent": 0,
-                 "childLeft": 5,
-                 "childRight": 1,
-                 "radius": 0.0010999852265084038,
-                 "pressDif": 565.1178113870538
+                 "4": {
+                     "proximal": [
+                     0.01706171578928807,
+                     -0.0469989133313267
+                     ],
+                     "distal": [
+                     0.015326466606772317,
+                     -0.04060730426257755
+                     ],
+                     "parent": 0,
+                     "childLeft": 1,
+                     "childRight": 5,
+                     "radius": 0.001083374702712635,
+                     "pressDif": 367.13497927081335
+                 },
+                 "5": {
+                     "proximal": [
+                     0.015326466606772317,
+                     -0.04060730426257755
+                     ],
+                     "distal": [
+                     0.03972152158877504,
+                     0.02691588762389775
+                     ],
+                     "parent": 4,
+                     "childLeft": 0,
+                     "childRight": 0,
+                     "radius": 0.0008808795566487094,
+                     "pressDif": 4552.865020729187
                  }
-             ]
+            }
          }
      }
      */
@@ -588,12 +601,11 @@ public class ArterialTree extends NelderMeadOptimizer{
      * Throws an IOException in the case of an error while writing the pair to the file.
      */
     private void writeSegments(FileWriter fw) throws IOException{
-        writePair("segments", "[", true, fw);
+        writePair("segments", "{", true, fw);
         int segCounter = 0;
         int segSize = segments.size();
         for (Segment s: segments.values()){
-            fw.write("{");
-            writePair("index", Long.toString(s.index), false, fw);
+            writePair(Long.toString(s.index), "{", true, fw);
             writePair("proximal", "[" + s.proximal.x + ", " + s.proximal.y + "]", false, fw);
             writePair("distal", "[" + s.distal.x + ", " + s.distal.y + "]", false, fw);
             writePair("parent", s.parent == null ? "0" : Long.toString(s.parent.index), false, fw);
@@ -605,7 +617,7 @@ public class ArterialTree extends NelderMeadOptimizer{
             if(segCounter != segSize - 1) fw.write(", ");
             segCounter++;
         }
-        fw.write("]");
+        fw.write("}");
     }
 
     /**
