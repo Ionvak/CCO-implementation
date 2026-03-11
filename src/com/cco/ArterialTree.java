@@ -495,6 +495,17 @@ public class ArterialTree extends NelderMeadOptimizer{
         testPressDiffInternal(root, params.perfPress, tol);
     }
 
+    private HashMap<Integer, List<Double>> testBifLevel(){
+        HashMap<Integer, List<Double>> series = new HashMap<>();
+        for(Segment s: segments.values())
+            if (series.get(s.level()) != null) series.get(s.level()).add(s.radius);
+            else{
+                series.put(s.level(), new ArrayList<>());
+                series.get(s.level()).add(s.radius);
+            }
+        return series;
+    }
+
     /**
      * Save a snapshots summary of the tree to the tree_data.json file.
      * Output format example:
