@@ -78,4 +78,14 @@ class Segment {
             return 1;
         return childLeft.nDIST() + childRight.nDIST();
     }
+
+    int level(){
+        int level = 0;
+        Segment s = this;
+        while(s.parent != null){
+            s = s.parent;
+            level++;
+        }
+        return level;
+    }
 }
