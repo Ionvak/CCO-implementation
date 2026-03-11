@@ -45,6 +45,21 @@ class Segment {
     }
 
     /**
+     * Calculates and returns the bifurcation level of the segment.
+     * @return
+     * The bifurcation level of the segment.
+     */
+    int level(){
+        int level = 0;
+        Segment s = this;
+        while(s.parent != null){
+            s = s.parent;
+            level++;
+        }
+        return level;
+    }
+
+    /**
      * Calculates and returns the flow of the segment.
      * @param termFlow
      * The terminal flow of the tree in which the segment resides.
@@ -79,13 +94,4 @@ class Segment {
         return childLeft.nDIST() + childRight.nDIST();
     }
 
-    int level(){
-        int level = 0;
-        Segment s = this;
-        while(s.parent != null){
-            s = s.parent;
-            level++;
-        }
-        return level;
-    }
 }
