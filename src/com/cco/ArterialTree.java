@@ -507,70 +507,12 @@ public class ArterialTree extends NelderMeadOptimizer{
     }
 
     /**
-     * Save a snapshots summary of the tree to the tree_data.json file.
-     * Output format example:
-     {
-         "ArterialTree": {
-             "params": {
-                 "viscosity": 0.0036,
-                 "bifExponent": 3,
-                 "perfPress": 13300,
-                 "termPress": 8380,
-                 "perfFlow": 0.00000833,
-                 "perfRadius": 0.05,
-                 "nTerminal": 2
-             },
-            "segments": {
-                 "1": {
-                     "proximal": [
-                     0.015326466606772317,
-                     -0.04060730426257755
-                     ],
-                     "distal": [
-                     -0.03270281510664856,
-                     -0.006782058324418024
-                     ],
-                     "parent": 4,
-                     "childLeft": 0,
-                     "childRight": 0,
-                     "radius": 0.0008377909968792547,
-                     "pressDif": 4552.865020729187
-                 },
-                 "4": {
-                     "proximal": [
-                     0.01706171578928807,
-                     -0.0469989133313267
-                     ],
-                     "distal": [
-                     0.015326466606772317,
-                     -0.04060730426257755
-                     ],
-                     "parent": 0,
-                     "childLeft": 1,
-                     "childRight": 5,
-                     "radius": 0.001083374702712635,
-                     "pressDif": 367.13497927081335
-                 },
-                 "5": {
-                     "proximal": [
-                     0.015326466606772317,
-                     -0.04060730426257755
-                     ],
-                     "distal": [
-                     0.03972152158877504,
-                     0.02691588762389775
-                     ],
-                     "parent": 4,
-                     "childLeft": 0,
-                     "childRight": 0,
-                     "radius": 0.0008808795566487094,
-                     "pressDif": 4552.865020729187
-                 }
-            }
-         }
-     }
+     * Save tree data to the output files.
      */
     private void saveState() {
+        clearFile("src/tree_data.json");
+        clearFile("src/bifurcation_test.json");
+
         try (FileWriter exportWriter = new FileWriter("src/tree_data.json", true)) {
             exportWriter.write("{");
             writePair("ArterialTree", "{", true, exportWriter);
@@ -581,7 +523,45 @@ public class ArterialTree extends NelderMeadOptimizer{
             System.out.println("Successfully wrote tree state with " + kTerm + " terminal segments to tree_data.json.");
         }
         catch (IOException e) {
-            System.out.println("An error occurred.");
+            System.out.println("An error occurred while writing data to src/tree_data.json.");
+            e.printStackTrace();
+        }
+
+        try (FileWriter exportWriter = new FileWriter("src/bifurcation_test.json", true)) {
+            HashMap<Integer, List<Double>> series = testBifLevel();
+            exportWriter.write("{");
+            writePair("Bifurcation Test Data", "{", true, exportWriter);
+            String bifLevel;
+            String list;
+            int cnt = 0;
+            for(var entry: series.entrySet()) {
+                bifLevel = Integer.toString(entry.getKey());
+                list = entry.getValue().toString();
+                writePair(bifLevel, list, true, exportWriter);
+                if(cnt != series.size() - 1) exportWriter.write(", ");
+                cnt++;
+            }
+            exportWriter.write("}}");
+            System.out.println("Successfully wrote bifurcation level test data to src/bifurcation_test.json.");
+        }
+        catch (IOException e) {
+            System.out.println("An error occurred while writing data to src/bifurcation_test.json.");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Clear the content of the file specified by the parameter.
+     * @param fileName
+     * The name of the file to be cleared.
+     */
+    private void clearFile(String fileName){
+        try (FileWriter exportWriter = new FileWriter(fileName)) {
+            exportWriter.write("");
+            System.out.println("Successfully cleared " + fileName + ".");
+        }
+        catch (IOException e) {
+            System.out.println("An error occurred while attempting to clear " + fileName + ".");
             e.printStackTrace();
         }
     }
@@ -671,19 +651,8 @@ public class ArterialTree extends NelderMeadOptimizer{
      * The segments are always added into the optimal locations.
      */
     public void buildTree(){
-        try (FileWriter exportWriter = new FileWriter("src/tree_data.json")) {
-            exportWriter.write("");
-            System.out.println("Successfully cleared tree_data.json.");
-        }
-        catch (IOException e) {
-            System.out.println("An error occurred when clearing tree_data.json.");
-            e.printStackTrace();
-        }
-
         initRoot();
         while(kTerm < params.nTerminal) {
-//            if(params.nTerminal >= 4 && (kTerm % (params.nTerminal / 4) == 0))
-//                saveState();
             addBifOptimal(newDistal());
         }
         saveState();
