@@ -15,4 +15,48 @@ class Point {
     public String toString(){
         return "(" + x + ", " + y + ")";
     }
+
+    /**
+     * Returns the cross product of the vector and the vector in the method parameter.
+     * @param v
+     * The vector with which to perform the cross product operation.
+     * @return
+     * The result of the cross product operation.
+     */
+    public double crossProd(Point v){
+        return x * v.y - y * v.x;
+    }
+
+    /**
+     * Returns the dot product of the vector and the vector in the method parameter.
+     * @param v
+     * The vector with which to perform the dot product operation.
+     * @return
+     * The result of the dot product operation.
+     */
+    public double dotProd(Point v){
+        return x * v.x + y * v.y;
+    }
+
+    /**
+     * Returns the vector addition result of the vector and the vector in the method parameter.
+     * @param v
+     * The vector with which to perform the vector addition operation.
+     * @return
+     * The result of the vector addition operation.
+     */
+    public Point vecAdd(Point v){
+        return new Point(x + v.x, y + v.y);
+    }
+
+    /**
+     * Returns the vector subtraction result of the vector and the vector in the method parameter.
+     * @param v
+     * The vector with which to perform the vector subtraction operation.
+     * @return
+     * The result of the vector subtraction operation.
+     */
+    public Point vecDiff(Point v){
+        return new Point(x - v.x, y - v.y);
+    }
 }
