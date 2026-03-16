@@ -1,5 +1,6 @@
 package com.cco;
 
+import java.awt.font.ShapeGraphicAttribute;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -456,6 +457,80 @@ public class ArterialTree extends NelderMeadOptimizer{
     }
 
     /**
+     * Tests whether the tree containing any two intersecting segments and returns the result of the test. See the
+     * following link for an explanation of the algorithm used:
+     * <a href="https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect">
+     *     how do you detect where two line segments intersect
+     * </a>
+     * @return
+     * the result of the intersection test.
+     */
+    private boolean testIntersection(){
+        Point s1Prox, s1Dist, s2Prox, s2Dist;
+        double s1Scalar, s2Scalar, t0, t1, a, b;
+        int cnt = 0; //these variables are used to ensure the same pairs are not checked twice and that the
+        int itr = 1; //same vector is never paired with itself
+        Point nom;
+        double denom;
+
+        //test every segment with every other segment
+        for(Segment s1: segments.values()){
+            s1Prox = s1.proximal;
+            s1Dist = s1.distal.vecDiff(s1.proximal);
+
+            for(Segment s2: segments.values()){
+                if(cnt < itr){
+                    cnt++;
+                    continue;
+                }
+                s2Prox = s2.proximal;
+                s2Dist = s2.distal.vecDiff(s2.proximal);
+
+                nom = s2Prox.vecDiff(s1Prox);
+                denom = s1Dist.crossProd(s2Dist);
+                s1Scalar = nom.crossProd(s2Dist) / denom;
+                s2Scalar = nom.crossProd(s1Dist) / denom;
+                t0 = nom.dotProd(s1Dist) / s1Dist.dotProd(s1Dist);
+                t1 = t0 + s2Dist.dotProd(s1Dist) / s1Dist.dotProd(s1Dist);
+                a = Math.min(t0, t1);
+                b = Math.max(t0, t1);
+
+                //check intersection conditions
+                if(
+                        denom != 0 &&
+                        0 < s1Scalar && s1Scalar < 1 &&
+                        0 < s2Scalar && s2Scalar < 1
+                )
+                {
+                    System.out.println("Intersection detected between segments " + s1.index + " and " + s2.index + ".");
+                    System.out.println(s1.index + ": Proximal(" + s1.proximal.x + ", " + s1.proximal.y + ") " + "Distal(" + s1.distal.x + ", " + s1.distal.y + ")");
+                    System.out.println(s2.index + ": Proximal(" + s2.proximal.x + ", " + s2.proximal.y + ") " + "Distal(" + s2.distal.x + ", " + s2.distal.y + ")");
+                    return true;
+                }
+
+                else if(
+                        (denom == 0 && nom.crossProd(s1Dist) == 0) &&
+                        (Math.min(b, 1) > Math.max(a, 0))
+                )
+                {
+                    System.out.println("Intersection detected between segments " + s1.index + " and " + s2.index + ".");
+                    System.out.println(s1.index + ": Proximal(" + s1.proximal.x + ", " + s1.proximal.y + ") " + "Distal(" + s1.distal.x + ", " + s1.distal.y + ")");
+                    System.out.println(s2.index + ": Proximal(" + s2.proximal.x + ", " + s2.proximal.y + ") " + "Distal(" + s2.distal.x + ", " + s2.distal.y + ")");
+                    return true;
+                }
+
+                cnt++;
+            }
+            itr++;
+            cnt = 0;
+        }
+
+        System.out.println("\nNo intersections detected within the tree.");
+        return false;
+    }
+
+
+    /**
      * A recursive method ensuring that all segment paths downstream from the segment parameter and ending with the
      * distal segments have a pressure drop of: (perfusion flow - terminal flow) +/- tolerance.
      * @param segment
@@ -495,6 +570,12 @@ public class ArterialTree extends NelderMeadOptimizer{
         testPressDiffInternal(root, params.perfPress, tol);
     }
 
+    /**
+     * Generates the data necessary for the bifurcation level test. The data is in the form of a multimap where the keys
+     * are the bifurcation levels, and the values are ArrayLists of all the bifurcation at said level.
+     * @return
+     * A multimap containing all the data to be used in the bifurcation level test.
+     */
     private HashMap<Integer, List<Double>> testBifLevel(){
         HashMap<Integer, List<Double>> series = new HashMap<>();
         for(Segment s: segments.values())
@@ -698,6 +779,7 @@ public class ArterialTree extends NelderMeadOptimizer{
         }
         System.out.println("Target function value: " + getTarget() + "\n");
         testPressDiff(0.0001);
+        testIntersection();
     }
 
     /**
