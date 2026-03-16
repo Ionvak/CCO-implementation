@@ -457,7 +457,7 @@ public class ArterialTree extends NelderMeadOptimizer{
     }
 
     /**
-     * Tests whether the tree containing any two intersecting segments and returns the result of the test. See the
+     * Tests whether the tree contains any two intersecting segments and returns the result of the test. See the
      * following link for an explanation of the algorithm used:
      * <a href="https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect">
      *     how do you detect where two line segments intersect
@@ -502,7 +502,7 @@ public class ArterialTree extends NelderMeadOptimizer{
                         0 < s2Scalar && s2Scalar < 1
                 )
                 {
-                    System.out.println("Intersection detected between segments " + s1.index + " and " + s2.index + ".");
+                    System.out.println("Intersection detected  at bifurcation level " + s1.level() + " between segments " + s1.index + " and " + s2.index + ".");
                     System.out.println(s1.index + ": Proximal(" + s1.proximal.x + ", " + s1.proximal.y + ") " + "Distal(" + s1.distal.x + ", " + s1.distal.y + ")");
                     System.out.println(s2.index + ": Proximal(" + s2.proximal.x + ", " + s2.proximal.y + ") " + "Distal(" + s2.distal.x + ", " + s2.distal.y + ")");
                     return true;
@@ -513,7 +513,7 @@ public class ArterialTree extends NelderMeadOptimizer{
                         (Math.min(b, 1) > Math.max(a, 0))
                 )
                 {
-                    System.out.println("Intersection detected between segments " + s1.index + " and " + s2.index + ".");
+                    System.out.println("Intersection detected at bifurcation level " + s1.level() + " between segments " + s1.index + " and " + s2.index + ".");
                     System.out.println(s1.index + ": Proximal(" + s1.proximal.x + ", " + s1.proximal.y + ") " + "Distal(" + s1.distal.x + ", " + s1.distal.y + ")");
                     System.out.println(s2.index + ": Proximal(" + s2.proximal.x + ", " + s2.proximal.y + ") " + "Distal(" + s2.distal.x + ", " + s2.distal.y + ")");
                     return true;
