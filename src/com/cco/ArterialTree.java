@@ -224,6 +224,7 @@ public class ArterialTree extends NelderMeadOptimizer{
     private double addBif(Long where, Point iNewDistal, boolean keepChanges){
         Segment iConn = segments.get(where);
         boolean isLeftChild = false;
+        boolean intersecting;
 
         //store a reference to the proximal point of iConn previous to the bifurcation
         Point iConnProxPrev = iConn.proximal;
@@ -250,13 +251,6 @@ public class ArterialTree extends NelderMeadOptimizer{
         segments.put(iBif.index, iBif);
         segments.put(iNew.index, iNew);
 
-        //if the bifurcation should be kept permanently, update the tree attributes
-        if(keepChanges) {
-            kTot = kTot + 2;
-            kTerm++;
-            threshDistance = Math.sqrt(Math.PI * Math.pow(params.perfRadius, 2) / kTerm);
-        }
-
         //optimize the bifurcation
         movedPoint = iBif.distal;
         iConn.proximal = movedPoint;
@@ -265,12 +259,20 @@ public class ArterialTree extends NelderMeadOptimizer{
         double[] optimalPoint = fminsearch(x0);
         movedPoint.x = optimalPoint[0];
         movedPoint.y = optimalPoint[1];
+        intersecting = testIntersection();
+
+        //if the bifurcation should be kept permanently, update the tree attributes
+        if(keepChanges && !intersecting) {
+            kTot = kTot + 2;
+            kTerm++;
+            threshDistance = Math.sqrt(Math.PI * Math.pow(params.perfRadius, 2) / kTerm);
+        }
 
         //rescale the tree and get the target function value before the changes are possibly reverted
         rescaleTree();
         double target = getTarget();
         //if the bifurcation should be reverted, undo all the previous changes
-        if(!keepChanges) {
+        if(!keepChanges || intersecting) {
             iConn.parent = iBif.parent;
             if(iConn.parent != null){
                 if(isLeftChild) iConn.parent.childLeft = iConn;
@@ -502,9 +504,9 @@ public class ArterialTree extends NelderMeadOptimizer{
                         0 < s2Scalar && s2Scalar < 1
                 )
                 {
-                    System.out.println("Intersection detected  at bifurcation level " + s1.level() + " between segments " + s1.index + " and " + s2.index + ".");
-                    System.out.println(s1.index + ": Proximal(" + s1.proximal.x + ", " + s1.proximal.y + ") " + "Distal(" + s1.distal.x + ", " + s1.distal.y + ")");
-                    System.out.println(s2.index + ": Proximal(" + s2.proximal.x + ", " + s2.proximal.y + ") " + "Distal(" + s2.distal.x + ", " + s2.distal.y + ")");
+//                    System.out.println("Intersection detected  at bifurcation level " + s1.level() + " between segments " + s1.index + " and " + s2.index + ".");
+//                    System.out.println(s1.index + ": Proximal(" + s1.proximal.x + ", " + s1.proximal.y + ") " + "Distal(" + s1.distal.x + ", " + s1.distal.y + ")");
+//                    System.out.println(s2.index + ": Proximal(" + s2.proximal.x + ", " + s2.proximal.y + ") " + "Distal(" + s2.distal.x + ", " + s2.distal.y + ")");
                     return true;
                 }
 
@@ -513,9 +515,9 @@ public class ArterialTree extends NelderMeadOptimizer{
                         (Math.min(b, 1) > Math.max(a, 0))
                 )
                 {
-                    System.out.println("Intersection detected at bifurcation level " + s1.level() + " between segments " + s1.index + " and " + s2.index + ".");
-                    System.out.println(s1.index + ": Proximal(" + s1.proximal.x + ", " + s1.proximal.y + ") " + "Distal(" + s1.distal.x + ", " + s1.distal.y + ")");
-                    System.out.println(s2.index + ": Proximal(" + s2.proximal.x + ", " + s2.proximal.y + ") " + "Distal(" + s2.distal.x + ", " + s2.distal.y + ")");
+//                    System.out.println("Intersection detected at bifurcation level " + s1.level() + " between segments " + s1.index + " and " + s2.index + ".");
+//                    System.out.println(s1.index + ": Proximal(" + s1.proximal.x + ", " + s1.proximal.y + ") " + "Distal(" + s1.distal.x + ", " + s1.distal.y + ")");
+//                    System.out.println(s2.index + ": Proximal(" + s2.proximal.x + ", " + s2.proximal.y + ") " + "Distal(" + s2.distal.x + ", " + s2.distal.y + ")");
                     return true;
                 }
 
@@ -525,7 +527,6 @@ public class ArterialTree extends NelderMeadOptimizer{
             cnt = 0;
         }
 
-        System.out.println("\nNo intersections detected within the tree.");
         return false;
     }
 
@@ -733,12 +734,11 @@ public class ArterialTree extends NelderMeadOptimizer{
      */
     public void buildTree(){
         initRoot();
-        while(kTerm < params.nTerminal) {
+        while(kTerm < params.nTerminal)
             addBifOptimal(newDistal());
-        }
         saveState();
         isBuilt = true;
-    }
+     }
 
     /**
      * Prints a detailed summary of the tree content to the terminal.
