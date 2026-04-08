@@ -76,6 +76,7 @@ plt.show()
 plt.figure
 plt.title("Dependence of the Segment Diameters" + "\n" + "on the Bifurcation Level")
 plt.xlabel("Bifurcation Level")
+plt.ylim([0,5])
 plt.ylabel("Mean Segment Diameter (mm)")
 plt.errorbar(bif_levels, diameter_means, diameter_sdm)
 plt.show()
