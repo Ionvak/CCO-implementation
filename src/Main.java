@@ -11,7 +11,7 @@ void main() {
             8.38e3, //termPress
             8.33e-6,//perfFlow
             0.05,   //perfRadius
-            4000      //numTerminal
+            4      //numTerminal
     );
 
     ArterialTree arterialTree = new ArterialTree(params);

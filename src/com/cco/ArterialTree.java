@@ -1,6 +1,5 @@
 package com.cco;
 
-import java.awt.font.ShapeGraphicAttribute;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -165,7 +164,7 @@ public class ArterialTree extends NelderMeadOptimizer{
         Point rootProximal = new Point(x,y);
         Point rootDistal = newDistal();
         Segment root = new Segment(rootProximal, rootDistal);
-        root.radius = rootRadius(reducedResistance(root.length(),0,0,0,0), params.perfFlow);
+        root.radius = rootRadius(reducedResistance(root.length(),0,0,0,0), params.perfFlow/ params.nTerminal);
         segments.put(root.index, root);
     }
 
